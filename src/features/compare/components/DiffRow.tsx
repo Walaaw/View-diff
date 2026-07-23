@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import type { ChangeType, DiffCell } from '@/types/diff'
+import type { ChangeType, DiffCell, DiffRow as DiffRowModel } from '../types'
 
 interface SideCellProps {
   cell: DiffCell
@@ -61,7 +61,7 @@ function SideCell({ cell, type, side }: SideCellProps) {
  * A single aligned row rendering both sides. Whitespace is preserved (`pre`),
  * change type is conveyed by color AND a sign (+/-/~) for accessibility.
  */
-export function DiffRow({ row }: { row: import('@/types/diff').DiffRow }) {
+export function DiffRow({ row }: { row: DiffRowModel }) {
   return (
     <div className="grid grid-cols-2 border-b border-border-default/40">
       <div className="border-r border-border-default">

@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react'
-import { computeDiffResult } from '@/lib/diff'
+import { computeDiffResult } from '../diff'
 import {
   DEFAULT_CONTEXT_LINES,
   type DiffResult,
   type DiffStatus,
-} from '@/types/diff'
+} from '../types'
 
 export interface UseDiffResult {
   result: DiffResult | null

@@ -4,7 +4,7 @@ import {
   type DiffOptions,
   type DiffResult,
   type DiffRow,
-} from '@/types/diff'
+} from '../types'
 import { toLines } from '@/lib/utils'
 import { computeLineOps, computeStats } from './computeDiff'
 import { alignRows } from './alignRows'

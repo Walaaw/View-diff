@@ -1,9 +1,9 @@
 /**
- * Domain model for the side-by-side text diff viewer.
+ * Domain model for the compare feature (side-by-side text diff).
  * Source of truth: specs/001-text-diff-viewer/data-model.md
  *
  * These types are pure data (no React/DOM) so they can be shared by the diff
- * engine (`src/lib/diff/`), the Web Worker, and the presentation layer.
+ * engine (`features/compare/diff/`), the Web Worker, and the presentation layer.
  */
 
 /** Classification of a rendered diff row. */

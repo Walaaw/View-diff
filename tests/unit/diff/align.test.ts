@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { computeLineOps } from '@/lib/diff/computeDiff'
-import { alignRows } from '@/lib/diff/alignRows'
-import type { DiffRow } from '@/types/diff'
+import { computeLineOps, alignRows } from '@/features/compare'
+import type { DiffRow } from '@/features/compare'
 
 /** Helper: build rows from two line arrays. */
 function rowsFor(a: string[], b: string[]): DiffRow[] {

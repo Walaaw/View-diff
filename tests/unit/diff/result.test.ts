@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeDiffResult } from '@/lib/diff'
+import { computeDiffResult } from '@/features/compare'
 
 describe('computeDiffResult', () => {
   it('flags two empty inputs as empty and identical', () => {

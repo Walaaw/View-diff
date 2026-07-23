@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui'
 import { pluralize } from '@/lib/utils'
-import type { DiffResult } from '@/types/diff'
+import type { DiffResult } from '../types'
 import { DiffPanelHeader } from './DiffPanelHeader'
 import { DiffRow } from './DiffRow'
 

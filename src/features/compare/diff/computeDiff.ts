@@ -1,5 +1,5 @@
 import { diffArrays } from 'diff'
-import type { DiffRow, DiffStats, LineOp } from '@/types/diff'
+import type { DiffRow, DiffStats, LineOp } from '../types'
 
 /**
  * Wrap jsdiff's array diff to produce ordered line operations.

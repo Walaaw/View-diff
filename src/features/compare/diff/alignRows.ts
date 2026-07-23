@@ -1,4 +1,4 @@
-import type { DiffRow, LineOp } from '@/types/diff'
+import type { DiffRow, LineOp } from '../types'
 
 /**
  * Convert ordered line operations into aligned side-by-side rows.

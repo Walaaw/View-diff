@@ -1,3 +1,5 @@
+export { TextEditor, type TextEditorProps } from './TextEditor'
+export { EditorToolbar, type EditorToolbarProps } from './EditorToolbar'
 export { DiffLegend } from './DiffLegend'
 export { DiffRow } from './DiffRow'
 export { DiffPanelHeader } from './DiffPanelHeader'
