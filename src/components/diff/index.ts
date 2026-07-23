@@ -1,1 +1,0 @@
-export { DiffLegend } from './DiffLegend'
