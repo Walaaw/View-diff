@@ -21,7 +21,11 @@ export function EditorToolbar({
   onSwap,
 }: EditorToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div
+      role="toolbar"
+      aria-label="Editor actions"
+      className="flex flex-wrap items-center gap-2"
+    >
       <Button
         variant="primary"
         onClick={onCompare}

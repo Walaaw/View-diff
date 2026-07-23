@@ -159,16 +159,16 @@ responsive; controls show hover/focus/active feedback.
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T045 [P] [US4] Component test for empty state in `tests/components/EmptyState.test.tsx` (shown when result is null; CTA triggers load example)
-- [ ] T046 [P] [US4] Test loading/worker orchestration in `tests/components/store.loading.test.ts` (status transitions idle→computing→ready; stale results discarded; worker mocked to run engine sync)
+- [x] T045 [P] [US4] Component test for empty state in `tests/components/EmptyState.test.tsx` (shown when result is null; CTA triggers load example)
+- [x] T046 [P] [US4] Test loading/worker orchestration in `tests/components/store.loading.test.ts` (status transitions idle→computing→ready; stale results discarded; worker mocked to run engine sync)
 
 ### Implementation for User Story 4
 
-- [ ] T047 [P] [US4] Implement `EmptyState` (illustration, helper text, CTA) in `src/features/compare/components/EmptyState.tsx`; render when `result === null` in `src/features/compare/CompareFeature.tsx`
-- [ ] T048 [US4] Implement `diff.worker.ts` importing `computeDiffResult` (no logic duplication) in `src/features/compare/workers/diff.worker.ts` per contracts/diff-engine.md worker contract
-- [ ] T049 [US4] Extend the store's `compare` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/store/index.ts`
-- [ ] T050 [US4] Add loading feedback (disabled Compare + spinner) in `EditorToolbar` and viewer in `src/features/compare/components/EditorToolbar.tsx` / `src/features/compare/components/DiffViewer.tsx`
-- [ ] T051 [P] [US4] Ensure hover/focus/active states + 150–200ms transitions on all `src/components/ui/` primitives
+- [x] T047 [P] [US4] Implement `EmptyState` (illustration, helper text, CTA) in `src/features/compare/components/EmptyState.tsx`; render when `result === null` in `src/features/compare/CompareFeature.tsx`
+- [x] T048 [US4] Implement `diff.worker.ts` importing `computeDiffResult` (no logic duplication) in `src/features/compare/workers/diff.worker.ts` per contracts/diff-engine.md worker contract
+- [x] T049 [US4] Extend the store's `compare` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/store/index.ts`
+- [x] T050 [US4] Add loading feedback (disabled Compare + spinner) in `EditorToolbar` and viewer in `src/features/compare/components/EditorToolbar.tsx` / `src/features/compare/components/DiffViewer.tsx`
+- [x] T051 [P] [US4] Ensure hover/focus/active states + 150–200ms transitions on all `src/components/ui/` primitives
 
 **Checkpoint**: All four user stories independently functional.
 

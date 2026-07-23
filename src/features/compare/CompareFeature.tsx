@@ -1,9 +1,11 @@
+import { Loader2 } from 'lucide-react'
 import { Separator } from '@/components/ui'
 import {
   DiffControls,
   DiffLegend,
   DiffViewer,
   EditorToolbar,
+  EmptyState,
   TextEditor,
 } from './components'
 import { useAppStore, selectCanCompare } from '@/store'
@@ -68,10 +70,17 @@ export function CompareFeature() {
             <DiffControls result={result} />
             <DiffViewer result={result} />
           </>
-        ) : (
-          <div className="flex min-h-64 items-center justify-center rounded-card border border-dashed border-border-default bg-surface/50 text-sm text-text-muted">
-            Enter text in both editors and click Compare to see the diff.
+        ) : status === 'computing' ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border-default bg-surface/50 text-sm text-text-muted"
+          >
+            <Loader2 className="size-6 animate-spin text-accent" />
+            Comparing…
           </div>
+        ) : (
+          <EmptyState onLoadExample={loadExample} />
         )}
       </section>
     </>
