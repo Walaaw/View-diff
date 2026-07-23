@@ -1,7 +1,9 @@
-import { GitCompareArrows, Moon, RotateCcw } from 'lucide-react'
+import { GitCompareArrows, Moon, RotateCcw, Sun } from 'lucide-react'
 import { Button } from '@/components/ui'
 
 export interface HeaderProps {
+  /** Active theme; controls the toggle icon/label. */
+  theme?: 'dark' | 'light'
   /** Toggle the color theme (dark is default). */
   onToggleTheme?: () => void
   /** Reset the whole application to its initial state. */
@@ -10,9 +12,10 @@ export interface HeaderProps {
 
 /**
  * Application header: logo, title, theme toggle, and reset.
- * Presentational — behavior is wired via props in later phases.
+ * Presentational — behavior is wired via props.
  */
-export function Header({ onToggleTheme, onReset }: HeaderProps) {
+export function Header({ theme = 'dark', onToggleTheme, onReset }: HeaderProps) {
+  const nextTheme = theme === 'dark' ? 'light' : 'dark'
   return (
     <header className="sticky top-0 z-20 border-b border-border-default bg-app/80 backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -33,10 +36,11 @@ export function Header({ onToggleTheme, onReset }: HeaderProps) {
           <Button
             variant="icon"
             size="icon"
-            aria-label="Toggle theme"
+            aria-label={`Switch to ${nextTheme} theme`}
+            title={`Switch to ${nextTheme} theme`}
             onClick={onToggleTheme}
           >
-            <Moon />
+            {theme === 'dark' ? <Moon /> : <Sun />}
           </Button>
           <Button variant="secondary" size="sm" onClick={onReset}>
             <RotateCcw />

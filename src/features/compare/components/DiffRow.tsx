@@ -63,7 +63,7 @@ function SideCell({ cell, type, side }: SideCellProps) {
  */
 export function DiffRow({ row }: { row: DiffRowModel }) {
   return (
-    <div className="grid grid-cols-2 border-b border-border-default/40">
+    <div className="diff-row grid grid-cols-2 border-b border-border-default/40">
       <div className="border-r border-border-default">
         <SideCell cell={row.left} type={row.type} side="left" />
       </div>

@@ -31,6 +31,8 @@ describe('compare flow (US1)', () => {
     await user.type(screen.getByLabelText('Modified'), 'same\nlines')
     await user.click(screen.getByRole('button', { name: /compare/i }))
 
-    expect(screen.getByText(/no changes/i)).toBeInTheDocument()
+    // Visible summary reads exactly "No changes" (the sr-only announcement
+    // ends with a period, so an anchored match targets the visible one).
+    expect(screen.getByText(/^no changes$/i)).toBeInTheDocument()
   })
 })

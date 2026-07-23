@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { pluralize } from '@/lib/utils'
 import { useAppStore } from '@/store'
 import type { DiffBlock, DiffResult } from '../types'
 import { CollapsedBlock } from './CollapsedBlock'
@@ -53,8 +54,17 @@ export function DiffViewer({ result }: DiffViewerProps) {
     )
   }
 
+  const { stats, isIdentical } = result
+  const announcement = isIdentical
+    ? 'No changes.'
+    : `${pluralize(stats.totalChanges, 'change')}: ${stats.additions} added, ${stats.removals} removed, ${stats.modifications} modified.`
+
   return (
     <div className="overflow-hidden rounded-card border border-border-default bg-surface">
+      {/* Screen-reader announcement of the result summary (US1). */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {announcement}
+      </div>
       <div className="max-h-[70vh] overflow-auto">
         <DiffPanelHeader />
         <div role="table" aria-label="Side-by-side diff">
