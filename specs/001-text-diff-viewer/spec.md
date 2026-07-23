@@ -113,6 +113,31 @@ trigger a large comparison and verify loading feedback appears until results ren
 
 ---
 
+### User Story 5 - Load text from a file (Priority: P3)
+
+Instead of pasting, the user can bring text in from a local file — either by clicking an Upload
+control on an editor or by dragging a file onto it. This makes comparing real files fast without
+manual copy-paste.
+
+**Why this priority**: A convenience input path that complements paste/type; the tool is fully
+usable without it, but it removes friction for the common "compare two files" workflow.
+
+**Independent Test**: Click Upload on an editor and choose a text file, or drag a file onto an
+editor; the file's text populates that editor exactly and can be compared.
+
+**Acceptance Scenarios**:
+
+1. **Given** an editor, **When** the user clicks Upload and selects a text file, **Then** the
+   editor is populated with the file's exact contents (whitespace and line breaks preserved).
+2. **Given** an editor, **When** the user drags a file over it, **Then** a clear drop target is
+   indicated; **When** the file is dropped, **Then** the editor is populated with its contents.
+3. **Given** a file that is too large or not text, **When** the user tries to load it, **Then**
+   a clear, non-blocking message is shown and the editor contents are left unchanged.
+4. **Given** a loaded file, **When** the user edits, clears, swaps, or resets, **Then** the
+   contents behave exactly as manually entered text (no special-casing downstream).
+
+---
+
 ### Edge Cases
 
 - **Both inputs empty**: Comparing shows an empty/neutral result (or empty state) with zero
@@ -146,6 +171,12 @@ trigger a large comparison and verify loading feedback appears until results ren
 - **FR-004**: Users MUST be able to swap the contents of the two editors.
 - **FR-005**: Users MUST be able to load a built-in example into both editors for demonstration.
 - **FR-006**: Users MUST be able to reset the entire application to its initial state.
+- **FR-006a**: Users MUST be able to load text into either editor from a local file, both via an
+  explicit Upload control and via drag-and-drop onto that editor.
+- **FR-006b**: File loading MUST preserve the file's exact text content (whitespace, line breaks,
+  Unicode) and MUST replace only the targeted editor.
+- **FR-006c**: The system MUST reject non-text or oversized files with a clear, non-blocking
+  message and leave the editor contents unchanged.
 
 **Comparison behavior**
 

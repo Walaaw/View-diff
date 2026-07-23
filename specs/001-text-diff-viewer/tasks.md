@@ -174,6 +174,31 @@ responsive; controls show hover/focus/active feedback.
 
 ---
 
+## Phase 6.5: User Story 5 - Load text from a file (Priority: P3)
+
+**Goal**: Populate either editor from a local text file via an explicit Upload control and via
+drag-and-drop, preserving exact content and rejecting non-text/oversized files gracefully.
+
+**Independent Test**: Upload or drag a text file onto an editor → its exact contents appear and
+can be compared; an oversized/binary file shows a non-blocking message and leaves the editor
+unchanged.
+
+### Tests for User Story 5 ⚠️
+
+- [x] T058 [P] [US5] Unit test for the file-reading util (text extraction, size + type guards, error messages) in `tests/unit/files/readTextFile.test.ts`
+- [x] T059 [P] [US5] Component test for upload + drag-and-drop in `tests/components/FileUpload.test.tsx` (file input populates the editor; invalid file shows a message and leaves content unchanged)
+
+### Implementation for User Story 5
+
+- [x] T060 [US5] Implement `readTextFile` util (validate type/size, read as text, normalize errors to a typed result) in `src/features/compare/files/readTextFile.ts`
+- [x] T061 [US5] Add an Upload control (button triggering a hidden `<input type="file">`) to `src/features/compare/components/TextEditor.tsx`, calling `onChange` with the file text
+- [x] T062 [US5] Add drag-and-drop with a visible drop overlay (design tokens) to `src/features/compare/components/TextEditor.tsx`
+- [x] T063 [US5] Show a per-editor, non-blocking error message for rejected files in `src/features/compare/components/TextEditor.tsx`
+
+**Checkpoint**: File input works as an alternative to paste/type; downstream behavior unchanged.
+
+---
+
 ## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Accessibility, performance, footer, docs, and final validation across all stories.
@@ -260,4 +285,4 @@ does not break previous stories.
 - Consume design tokens only — no raw hex — per constitution Principle III.
 - Commit after each task or logical group; stop at any checkpoint to validate a story independently.
 
-**Total tasks**: 58 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · Setup: 8 · Foundational: 5 · Polish: 7
+**Total tasks**: 64 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · US5: 6 (T058–T063) · Setup: 8 · Foundational: 5 · Polish: 7
