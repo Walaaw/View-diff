@@ -1,6 +1,7 @@
-import { Badge } from '@/components/ui'
-import { pluralize } from '@/lib/utils'
-import type { DiffResult } from '../types'
+import { Fragment } from 'react'
+import { useAppStore } from '@/store'
+import type { DiffBlock, DiffResult } from '../types'
+import { CollapsedBlock } from './CollapsedBlock'
 import { DiffPanelHeader } from './DiffPanelHeader'
 import { DiffRow } from './DiffRow'
 
@@ -9,43 +10,55 @@ export interface DiffViewerProps {
 }
 
 /**
- * Side-by-side diff viewer: sticky column headers, aligned rows with per-side
- * line numbers, and a changes counter. Scrolls vertically as one container so
- * the two columns stay aligned; long lines scroll horizontally per cell.
+ * Side-by-side diff viewer: sticky column headers and aligned rows with per-side
+ * line numbers. Long unchanged blocks collapse to a clickable "N lines hidden"
+ * divider (context rows remain visible at each change-facing edge). Scrolls
+ * vertically as one container so the two columns stay aligned.
  */
 export function DiffViewer({ result }: DiffViewerProps) {
-  const { stats, blocks, isIdentical } = result
+  const collapseEnabled = useAppStore((s) => s.collapseEnabled)
+  const expandedBlockIds = useAppStore((s) => s.expandedBlockIds)
+  const toggleBlock = useAppStore((s) => s.toggleBlock)
+
+  const renderBlock = (block: DiffBlock) => {
+    const collapsed =
+      collapseEnabled && block.collapsible && !expandedBlockIds.has(block.id)
+
+    if (!collapsed) {
+      return (
+        <Fragment key={block.id}>
+          {block.rows.map((row) => (
+            <DiffRow key={row.id} row={row} />
+          ))}
+        </Fragment>
+      )
+    }
+
+    const top = block.rows.slice(0, block.contextBefore)
+    const bottom = block.rows.slice(block.rows.length - block.contextAfter)
+
+    return (
+      <Fragment key={block.id}>
+        {top.map((row) => (
+          <DiffRow key={row.id} row={row} />
+        ))}
+        <CollapsedBlock
+          hiddenCount={block.hiddenCount}
+          onExpand={() => toggleBlock(block.id)}
+        />
+        {bottom.map((row) => (
+          <DiffRow key={row.id} row={row} />
+        ))}
+      </Fragment>
+    )
+  }
 
   return (
     <div className="overflow-hidden rounded-card border border-border-default bg-surface">
-      {/* Summary bar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border-default px-3 py-2">
-        <span
-          className="text-xs font-medium text-text-secondary"
-          aria-live="polite"
-        >
-          {isIdentical
-            ? 'No changes'
-            : pluralize(stats.totalChanges, 'change')}
-        </span>
-        {stats.additions > 0 && (
-          <Badge variant="added">+{stats.additions}</Badge>
-        )}
-        {stats.removals > 0 && (
-          <Badge variant="removed">-{stats.removals}</Badge>
-        )}
-        {stats.modifications > 0 && (
-          <Badge variant="modified">~{stats.modifications}</Badge>
-        )}
-      </div>
-
-      {/* Scrollable diff grid */}
       <div className="max-h-[70vh] overflow-auto">
         <DiffPanelHeader />
         <div role="table" aria-label="Side-by-side diff">
-          {blocks.map((block) =>
-            block.rows.map((row) => <DiffRow key={row.id} row={row} />),
-          )}
+          {result.blocks.map(renderBlock)}
         </div>
       </div>
     </div>

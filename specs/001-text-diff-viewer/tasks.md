@@ -133,19 +133,19 @@ count; expand/collapse works; Expand All reveals all; changing context updates v
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T037 [P] [US3] Unit tests for `buildBlocks` in `tests/unit/diff/collapse.test.ts` (threshold boundaries `len==2c+1` vs `>2c+1`, edge context retention, `hiddenCount`, leading/trailing trim)
-- [ ] T038 [P] [US3] Component tests in `tests/components/Collapse.test.tsx` (collapsed shows hidden count; expand reveals; Expand All; toggle restores; context change updates)
+- [x] T037 [P] [US3] Unit tests for `buildBlocks` in `tests/unit/diff/collapse.test.ts` (threshold boundaries `len==2c+1` vs `>2c+1`, edge context retention, `hiddenCount`, leading/trailing trim)
+- [x] T038 [P] [US3] Component tests in `tests/components/Collapse.test.tsx` (collapsed shows hidden count; expand reveals; Expand All; toggle restores; context change updates)
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement `buildBlocks` (group unchanged; collapse beyond `2*context+1`; compute `hiddenCount`) in `src/features/compare/diff/collapse.ts`
-- [ ] T040 [US3] Integrate `buildBlocks` into `computeDiffResult` using `DiffOptions.contextLines` in `src/features/compare/diff/index.ts`
-- [ ] T041 [P] [US3] Implement `useCollapse` hook (per-block expanded set, Expand All, global toggle) in `src/features/compare/hooks/useCollapse.ts`
-- [ ] T042 [P] [US3] Implement `CollapsedBlock` (button, `aria-expanded`, "N unchanged lines hidden", 150–200ms transition) in `src/features/compare/components/CollapsedBlock.tsx`
-- [ ] T043 [US3] Implement `DiffControls` (collapse toggle, Expand All, context selector, changes counter) in `src/features/compare/components/DiffControls.tsx`
-- [ ] T044 [US3] Wire collapse state + context selector into `DiffViewer`/`CompareFeature.tsx` (recompute on context change)
+- [x] T039 [US3] Implement `buildBlocks` (group unchanged; collapse beyond `2*context+1`; compute `hiddenCount`) in `src/features/compare/diff/collapse.ts`
+- [x] T040 [US3] Integrate `buildBlocks` into `computeDiffResult` using `DiffOptions.contextLines` in `src/features/compare/diff/index.ts`
+- [x] T041 [P] [US3] Implement collapse state in the global store `src/store/index.ts` (per-block `expandedBlockIds`, `collapseEnabled` toggle, `toggleBlock`, `expandAll`) — chosen over a `useCollapse` hook to keep all app state in one store
+- [x] T042 [P] [US3] Implement `CollapsedBlock` (button, `aria-expanded`, "N unchanged lines hidden", 150–200ms transition) in `src/features/compare/components/CollapsedBlock.tsx`
+- [x] T043 [US3] Implement `DiffControls` (collapse toggle, Expand All, context selector, changes counter) in `src/features/compare/components/DiffControls.tsx`
+- [x] T044 [US3] Wire collapse state + context selector into `DiffViewer`/`CompareFeature.tsx` (recompute on context change)
 
-**Checkpoint**: US1 + US2 + US3 all independently functional.
+**Checkpoint**: ✅ US1 + US2 + US3 all independently functional.
 
 ---
 

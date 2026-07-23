@@ -1,5 +1,6 @@
 import { Separator } from '@/components/ui'
 import {
+  DiffControls,
   DiffLegend,
   DiffViewer,
   EditorToolbar,
@@ -63,7 +64,10 @@ export function CompareFeature() {
       <section aria-label="Diff viewer" className="space-y-3">
         <DiffLegend />
         {result ? (
-          <DiffViewer result={result} />
+          <>
+            <DiffControls result={result} />
+            <DiffViewer result={result} />
+          </>
         ) : (
           <div className="flex min-h-64 items-center justify-center rounded-card border border-dashed border-border-default bg-surface/50 text-sm text-text-muted">
             Enter text in both editors and click Compare to see the diff.
