@@ -9,7 +9,7 @@ describe('compare flow (US1)', () => {
     render(<App />)
 
     // Empty state before comparing.
-    expect(screen.getByText(/click Compare to see the diff/i)).toBeInTheDocument()
+    expect(screen.getByText(/nothing to compare yet/i)).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Original'), 'a\nb\nc')
     await user.type(screen.getByLabelText('Modified'), 'a\nX\nc')

@@ -2,6 +2,10 @@ import { create } from 'zustand'
 import { EXAMPLE } from '@/lib/example'
 import { computeDiffResult } from '@/features/compare/diff'
 import {
+  shouldUseWorker,
+  requestDiffViaWorker,
+} from '@/features/compare/workers/diffClient'
+import {
   DEFAULT_CONTEXT_LINES,
   type DiffResult,
   type DiffStatus,
@@ -19,6 +23,8 @@ export interface AppStore {
   modified: string
   result: DiffResult | null
   status: DiffStatus
+  /** Monotonic id of the latest compare; used to discard stale worker results. */
+  requestId: number
 
   // --- collapse / context UI state (US3) ---
   /** Context lines shown around changes; drives collapse building. */
@@ -30,7 +36,7 @@ export interface AppStore {
 
   setOriginal: (value: string) => void
   setModified: (value: string) => void
-  /** Compare the current inputs. */
+  /** Compare the current inputs (sync for small inputs, worker for large). */
   compare: () => void
   /** Clear both inputs and the result (full reset). */
   reset: () => void
@@ -59,95 +65,109 @@ function runDiff(
   return computeDiffResult(original, modified, { contextLines })
 }
 
-export const useAppStore = create<AppStore>((set, get) => ({
-  original: '',
-  modified: '',
-  result: null,
-  status: 'idle',
+export const useAppStore = create<AppStore>((set, get) => {
+  /**
+   * Run a compare, choosing the sync path (small inputs) or the worker
+   * (large inputs). Results are applied only if this request is still the
+   * latest — superseded (stale) results are discarded.
+   */
+  const compute = (
+    original: string,
+    modified: string,
+    contextLines: number,
+  ) => {
+    const id = get().requestId + 1
+    set({ requestId: id, status: 'computing' })
 
-  contextLines: DEFAULT_CONTEXT_LINES,
-  collapseEnabled: true,
-  expandedBlockIds: new Set<string>(),
+    const finish = (result: DiffResult) => {
+      if (get().requestId !== id) return // stale — a newer compare has started
+      set({ result, status: 'ready', expandedBlockIds: new Set<string>() })
+    }
 
-  setOriginal: (original) => set({ original }),
-  setModified: (modified) => set({ modified }),
+    if (!shouldUseWorker(original, modified)) {
+      finish(runDiff(original, modified, contextLines))
+      return
+    }
+    requestDiffViaWorker({
+      id,
+      originalText: original,
+      modifiedText: modified,
+      contextLines,
+    }).then(finish)
+  }
 
-  compare: () => {
-    const { original, modified, contextLines } = get()
-    set({ status: 'computing' })
-    set({
-      result: runDiff(original, modified, contextLines),
-      status: 'ready',
-      expandedBlockIds: new Set<string>(),
-    })
-  },
+  return {
+    original: '',
+    modified: '',
+    result: null,
+    status: 'idle',
+    requestId: 0,
 
-  reset: () =>
-    set({
-      original: '',
-      modified: '',
-      result: null,
-      status: 'idle',
-      collapseEnabled: true,
-      expandedBlockIds: new Set<string>(),
-    }),
+    contextLines: DEFAULT_CONTEXT_LINES,
+    collapseEnabled: true,
+    expandedBlockIds: new Set<string>(),
 
-  clearOriginal: () => set({ original: '' }),
-  clearModified: () => set({ modified: '' }),
+    setOriginal: (original) => set({ original }),
+    setModified: (modified) => set({ modified }),
 
-  swap: () => {
-    const { original, modified, result, contextLines } = get()
-    set({
-      original: modified,
-      modified: original,
+    compare: () => {
+      const { original, modified, contextLines } = get()
+      compute(original, modified, contextLines)
+    },
+
+    reset: () =>
+      set({
+        original: '',
+        modified: '',
+        result: null,
+        status: 'idle',
+        // Invalidate any in-flight worker compare so it can't repopulate.
+        requestId: get().requestId + 1,
+        collapseEnabled: true,
+        expandedBlockIds: new Set<string>(),
+      }),
+
+    clearOriginal: () => set({ original: '' }),
+    clearModified: () => set({ modified: '' }),
+
+    swap: () => {
+      const { original, modified, result, contextLines } = get()
+      set({ original: modified, modified: original })
       // Keep the displayed diff consistent with the swapped inputs.
-      ...(result
-        ? {
-            result: runDiff(modified, original, contextLines),
-            status: 'ready' as const,
-            expandedBlockIds: new Set<string>(),
-          }
-        : {}),
-    })
-  },
+      if (result) compute(modified, original, contextLines)
+    },
 
-  loadExample: () =>
-    set({ original: EXAMPLE.original, modified: EXAMPLE.modified }),
+    loadExample: () =>
+      set({ original: EXAMPLE.original, modified: EXAMPLE.modified }),
 
-  setContextLines: (n) => {
-    const { original, modified, result } = get()
-    set({
-      contextLines: n,
-      ...(result
-        ? {
-            result: runDiff(original, modified, n),
-            expandedBlockIds: new Set<string>(),
-          }
-        : {}),
-    })
-  },
+    setContextLines: (n) => {
+      const { original, modified, result } = get()
+      set({ contextLines: n })
+      if (result) compute(original, modified, n)
+    },
 
-  setCollapseEnabled: (enabled) =>
-    set({
-      collapseEnabled: enabled,
-      // Re-enabling restores automatic collapsing (drops manual expansions).
-      ...(enabled ? { expandedBlockIds: new Set<string>() } : {}),
-    }),
+    setCollapseEnabled: (enabled) =>
+      set({
+        collapseEnabled: enabled,
+        // Re-enabling restores automatic collapsing (drops manual expansions).
+        ...(enabled ? { expandedBlockIds: new Set<string>() } : {}),
+      }),
 
-  toggleBlock: (id) => {
-    const next = new Set(get().expandedBlockIds)
-    if (next.has(id)) next.delete(id)
-    else next.add(id)
-    set({ expandedBlockIds: next })
-  },
+    toggleBlock: (id) => {
+      const next = new Set(get().expandedBlockIds)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      set({ expandedBlockIds: next })
+    },
 
-  expandAll: () => {
-    const { result } = get()
-    if (!result) return
-    const ids = result.blocks.filter((b) => b.collapsible).map((b) => b.id)
-    set({ expandedBlockIds: new Set(ids) })
-  },
-}))
+    expandAll: () => {
+      const { result } = get()
+      if (!result) return
+      const ids = result.blocks.filter((b) => b.collapsible).map((b) => b.id)
+      set({ expandedBlockIds: new Set(ids) })
+    },
+  }
+})
 
 /** Derived selector: true when at least one side has content. */
 export const selectCanCompare = (s: AppStore): boolean =>

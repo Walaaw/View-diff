@@ -28,6 +28,6 @@ describe('reset (US2)', () => {
     expect(
       screen.queryByRole('table', { name: /side-by-side diff/i }),
     ).not.toBeInTheDocument()
-    expect(screen.getByText(/click Compare to see the diff/i)).toBeInTheDocument()
+    expect(screen.getByText(/nothing to compare yet/i)).toBeInTheDocument()
   })
 })
