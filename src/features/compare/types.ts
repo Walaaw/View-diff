@@ -35,6 +35,10 @@ export interface DiffBlock {
   collapsible: boolean
   /** Number of rows hidden when collapsed (0 when not collapsible). */
   hiddenCount: number
+  /** Rows kept visible above the hidden gap when collapsed (change-facing context). */
+  contextBefore: number
+  /** Rows kept visible below the hidden gap when collapsed. */
+  contextAfter: number
 }
 
 /** Summary counters for a comparison. */

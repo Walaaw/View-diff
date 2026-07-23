@@ -19,8 +19,8 @@ describe('compare flow (US1)', () => {
     expect(table).toBeInTheDocument()
     // "b" removed/modified into "X" — both present in the rendered diff.
     expect(within(table).getByText('X')).toBeInTheDocument()
-    // Changes counter reflects the number of changes.
-    expect(within(table.parentElement!.parentElement!).getByText(/^\d+ changes?$/i)).toBeInTheDocument()
+    // Changes counter (now in DiffControls) reflects the number of changes.
+    expect(screen.getByText(/^\d+ changes?$/i)).toBeInTheDocument()
   })
 
   it('reports no changes for identical inputs', async () => {

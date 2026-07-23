@@ -7,12 +7,27 @@ import {
   type DiffStatus,
 } from '@/features/compare/types'
 
-
+/**
+ * The single global application store. The app is currently one feature
+ * (compare), so state + actions live here directly. When a second feature is
+ * added, split this into per-feature slices (see docs) — components only ever
+ * touch `useAppStore`, so that refactor won't reach into feature code.
+ */
 export interface AppStore {
+  // --- inputs & result ---
   original: string
   modified: string
   result: DiffResult | null
   status: DiffStatus
+
+  // --- collapse / context UI state (US3) ---
+  /** Context lines shown around changes; drives collapse building. */
+  contextLines: number
+  /** Global collapse toggle; when false, everything is expanded. */
+  collapseEnabled: boolean
+  /** Per-block manual overrides (block ids the user expanded). */
+  expandedBlockIds: Set<string>
+
   setOriginal: (value: string) => void
   setModified: (value: string) => void
   /** Compare the current inputs. */
@@ -25,12 +40,23 @@ export interface AppStore {
   swap: () => void
   /** Populate both editors with the built-in example. */
   loadExample: () => void
+
+  /** Change context lines and recompute (resets manual expansions). */
+  setContextLines: (n: number) => void
+  /** Enable/disable auto-collapse; enabling restores automatic collapsing. */
+  setCollapseEnabled: (enabled: boolean) => void
+  /** Expand/collapse a single block by id. */
+  toggleBlock: (id: string) => void
+  /** Expand every collapsible block in the current result. */
+  expandAll: () => void
 }
 
-function runDiff(original: string, modified: string): DiffResult {
-  return computeDiffResult(original, modified, {
-    contextLines: DEFAULT_CONTEXT_LINES,
-  })
+function runDiff(
+  original: string,
+  modified: string,
+  contextLines: number,
+): DiffResult {
+  return computeDiffResult(original, modified, { contextLines })
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -39,34 +65,99 @@ export const useAppStore = create<AppStore>((set, get) => ({
   result: null,
   status: 'idle',
 
+  contextLines: DEFAULT_CONTEXT_LINES,
+  collapseEnabled: true,
+  expandedBlockIds: new Set<string>(),
+
   setOriginal: (original) => set({ original }),
   setModified: (modified) => set({ modified }),
 
   compare: () => {
-    const { original, modified } = get()
+    const { original, modified, contextLines } = get()
     set({ status: 'computing' })
-    set({ result: runDiff(original, modified), status: 'ready' })
+    set({
+      result: runDiff(original, modified, contextLines),
+      status: 'ready',
+      expandedBlockIds: new Set<string>(),
+    })
   },
 
-  reset: () => set({ original: '', modified: '', result: null, status: 'idle' }),
+  reset: () =>
+    set({
+      original: '',
+      modified: '',
+      result: null,
+      status: 'idle',
+      collapseEnabled: true,
+      expandedBlockIds: new Set<string>(),
+    }),
 
   clearOriginal: () => set({ original: '' }),
   clearModified: () => set({ modified: '' }),
 
   swap: () => {
-    const { original, modified, result } = get()
+    const { original, modified, result, contextLines } = get()
     set({
       original: modified,
       modified: original,
       // Keep the displayed diff consistent with the swapped inputs.
-      ...(result ? { result: runDiff(modified, original), status: 'ready' } : {}),
+      ...(result
+        ? {
+            result: runDiff(modified, original, contextLines),
+            status: 'ready' as const,
+            expandedBlockIds: new Set<string>(),
+          }
+        : {}),
     })
   },
 
   loadExample: () =>
     set({ original: EXAMPLE.original, modified: EXAMPLE.modified }),
+
+  setContextLines: (n) => {
+    const { original, modified, result } = get()
+    set({
+      contextLines: n,
+      ...(result
+        ? {
+            result: runDiff(original, modified, n),
+            expandedBlockIds: new Set<string>(),
+          }
+        : {}),
+    })
+  },
+
+  setCollapseEnabled: (enabled) =>
+    set({
+      collapseEnabled: enabled,
+      // Re-enabling restores automatic collapsing (drops manual expansions).
+      ...(enabled ? { expandedBlockIds: new Set<string>() } : {}),
+    }),
+
+  toggleBlock: (id) => {
+    const next = new Set(get().expandedBlockIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    set({ expandedBlockIds: next })
+  },
+
+  expandAll: () => {
+    const { result } = get()
+    if (!result) return
+    const ids = result.blocks.filter((b) => b.collapsible).map((b) => b.id)
+    set({ expandedBlockIds: new Set(ids) })
+  },
 }))
 
 /** Derived selector: true when at least one side has content. */
 export const selectCanCompare = (s: AppStore): boolean =>
   s.original.length > 0 || s.modified.length > 0
+
+/** Whether a given block should render collapsed right now. */
+export function selectIsBlockCollapsed(
+  s: AppStore,
+  blockId: string,
+  collapsible: boolean,
+): boolean {
+  return s.collapseEnabled && collapsible && !s.expandedBlockIds.has(blockId)
+}
