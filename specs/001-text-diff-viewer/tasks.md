@@ -50,13 +50,13 @@ Single-project frontend SPA rooted at `view_diff/`. Source in `src/`, tests in `
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T009 [P] Define domain types in `src/types/diff.ts` (`ChangeType`, `DiffCell`, `DiffRow`, `DiffBlock`, `DiffStats`, `DiffResult`, `DiffOptions`) per data-model.md
-- [ ] T010 [P] Implement `cn()` and small pure helpers in `src/lib/utils.ts`
-- [ ] T011 [P] Add built-in example texts in `src/lib/example.ts` (original + modified sample)
-- [ ] T012 [P] Scaffold shadcn/ui primitives in `src/components/ui/` restyled to tokens: `button.tsx` (primary/secondary/ghost/icon variants), `textarea.tsx`, `badge.tsx`, `select.tsx`, `toggle.tsx` (or switch), `tooltip.tsx`, `separator.tsx`
-- [ ] T013 Build the app layout shell in `src/App.tsx` with semantic landmarks (`<header>`/`<main>`/`<footer>`) and responsive grid (desktop 2-col, tablet, mobile stacked) — placeholders for editors/diff
+- [x] T009 [P] Define domain types in `src/types/diff.ts` (`ChangeType`, `DiffCell`, `DiffRow`, `DiffBlock`, `DiffStats`, `DiffResult`, `DiffOptions`) per data-model.md
+- [x] T010 [P] Implement `cn()` and small pure helpers in `src/lib/utils.ts`
+- [x] T011 [P] Add built-in example texts in `src/lib/example.ts` (original + modified sample)
+- [x] T012 [P] Scaffold shadcn/ui primitives in `src/components/ui/` restyled to tokens: `button.tsx` (primary/secondary/ghost/icon variants), `textarea.tsx`, `badge.tsx`, `select.tsx`, `switch.tsx`, `tooltip.tsx`, `separator.tsx`
+- [x] T013 Build the app layout shell in `src/App.tsx` with semantic landmarks (`<header>`/`<main>`/`<footer>`) and responsive grid (desktop 2-col, tablet, mobile stacked) — placeholders for editors/diff
 
-**Checkpoint**: Types compile; primitives render with tokens; layout responds to breakpoints.
+**Checkpoint**: ✅ Types compile; primitives render with tokens; layout responds to breakpoints; `yarn build`/`lint`/`test` all pass.
 
 ---
 

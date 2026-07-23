@@ -2,9 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { AppLayout } from '@/components/layout'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppLayout>
+      <App />
+    </AppLayout>
   </StrictMode>,
 )

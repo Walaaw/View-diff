@@ -1,0 +1,31 @@
+import * as React from 'react'
+import * as SwitchPrimitive from '@radix-ui/react-switch'
+import { cn } from '@/lib/utils'
+
+/** Switch primitive used for the "collapse unchanged" toggle. */
+function Switch({
+  className,
+  ...props
+}: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+  return (
+    <SwitchPrimitive.Root
+      className={cn(
+        'peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors duration-150',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-app',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        'data-[state=checked]:bg-accent data-[state=unchecked]:bg-elevated data-[state=unchecked]:border-border-default',
+        className,
+      )}
+      {...props}
+    >
+      <SwitchPrimitive.Thumb
+        className={cn(
+          'pointer-events-none block size-4 rounded-full bg-text-primary shadow-sm ring-0 transition-transform duration-150',
+          'data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0.5',
+        )}
+      />
+    </SwitchPrimitive.Root>
+  )
+}
+
+export { Switch }
