@@ -22,8 +22,12 @@ implementable and testable. All paths are relative to the project root `view_dif
 
 ## Path Conventions
 
-Single-project frontend SPA rooted at `view_diff/`. Source in `src/`, tests in `tests/`
-(unit + component) and co-located where noted. See plan.md → Project Structure.
+Single-project frontend SPA rooted at `view_diff/`, organized **feature-first**. Feature code lives
+in `src/features/<feature>/` (e.g. `src/features/compare/` with `components/`, `hooks/`, `diff/`,
+`types.ts`, and a `CompareFeature.tsx` root). Shared, cross-feature code stays global:
+`src/components/ui/` (design-system primitives), `src/components/layout/` (app chrome),
+`src/lib/` (pure helpers). `src/App.tsx` is only a composition root. Tests live in `tests/`
+(unit + component). See plan.md → Project Structure.
 
 ---
 
@@ -50,11 +54,11 @@ Single-project frontend SPA rooted at `view_diff/`. Source in `src/`, tests in `
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [x] T009 [P] Define domain types in `src/types/diff.ts` (`ChangeType`, `DiffCell`, `DiffRow`, `DiffBlock`, `DiffStats`, `DiffResult`, `DiffOptions`) per data-model.md
-- [x] T010 [P] Implement `cn()` and small pure helpers in `src/lib/utils.ts`
+- [x] T009 [P] Define domain types in `src/features/compare/types.ts` (`ChangeType`, `DiffCell`, `DiffRow`, `DiffBlock`, `DiffStats`, `DiffResult`, `DiffOptions`) per data-model.md
+- [x] T010 [P] Implement `cn()` and small pure helpers (`normalizeEol`, `toLines`, `pluralize`) in `src/lib/utils.ts`
 - [x] T011 [P] Add built-in example texts in `src/lib/example.ts` (original + modified sample)
 - [x] T012 [P] Scaffold shadcn/ui primitives in `src/components/ui/` restyled to tokens: `button.tsx` (primary/secondary/ghost/icon variants), `textarea.tsx`, `badge.tsx`, `select.tsx`, `switch.tsx`, `tooltip.tsx`, `separator.tsx`
-- [x] T013 Build the app layout shell in `src/App.tsx` with semantic landmarks (`<header>`/`<main>`/`<footer>`) and responsive grid (desktop 2-col, tablet, mobile stacked) — placeholders for editors/diff
+- [x] T013 Build the app layout shell in `src/components/layout/` (`AppLayout`, `Header`, `Footer`) with semantic landmarks (`<header>`/`<main>`/`<footer>`) and responsive grid (desktop 2-col, tablet, mobile stacked); `src/App.tsx` composes features only
 
 **Checkpoint**: ✅ Types compile; primitives render with tokens; layout responds to breakpoints; `yarn build`/`lint`/`test` all pass.
 
@@ -70,28 +74,28 @@ added/removed/modified/unchanged styling, dual line numbers, synced scrolling.
 
 ### Tests for User Story 1 ⚠️ (write first, ensure they FAIL)
 
-- [ ] T014 [P] [US1] Unit tests for `normalizeEol`/`toLines` in `tests/unit/diff/lines.test.ts` (EOL variants, empty, trailing newline, blank lines, Unicode)
-- [ ] T015 [P] [US1] Unit tests for `computeLineOps`/`alignRows` in `tests/unit/diff/align.test.ts` (add-only, remove-only, modified pairing, interleaved, one-empty side, completely different, identical)
-- [ ] T016 [P] [US1] Unit tests for `computeStats` and `computeDiffResult` flags in `tests/unit/diff/result.test.ts` (`totalChanges` invariant, `isIdentical`, `isEmpty`, edge-case table from contracts/diff-engine.md)
-- [ ] T017 [P] [US1] Component test for compare flow in `tests/components/DiffViewer.test.tsx` (type two texts, Compare → styled rows + counter render; identical → zero changes)
+- [x] T014 [P] [US1] Unit tests for `normalizeEol`/`toLines` in `tests/unit/diff/lines.test.ts` (EOL variants, empty, trailing newline, blank lines, Unicode)
+- [x] T015 [P] [US1] Unit tests for `computeLineOps`/`alignRows` in `tests/unit/diff/align.test.ts` (add-only, remove-only, modified pairing, interleaved, one-empty side, completely different, identical)
+- [x] T016 [P] [US1] Unit tests for `computeStats` and `computeDiffResult` flags in `tests/unit/diff/result.test.ts` (`totalChanges` invariant, `isIdentical`, `isEmpty`, edge-case table from contracts/diff-engine.md)
+- [x] T017 [P] [US1] Component test for compare flow in `tests/components/DiffViewer.test.tsx` (type two texts, Compare → styled rows + counter render; identical → zero changes)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Implement `normalizeEol` + `toLines` in `src/lib/diff/computeDiff.ts` (EOL-only normalization, no trim)
-- [ ] T019 [US1] Implement `computeLineOps` (jsdiff `diffLines` wrapper → `LineOp[]`) in `src/lib/diff/computeDiff.ts`
-- [ ] T020 [US1] Implement `alignRows` (pair adjacent removed+added → modified; placeholders; per-side 1-based line numbers) in `src/lib/diff/alignRows.ts`
-- [ ] T021 [US1] Implement `computeStats` in `src/lib/diff/computeDiff.ts` and assemble `computeDiffResult` (no collapsing yet: single blocks) in `src/lib/diff/index.ts`
-- [ ] T022 [P] [US1] Implement `useDiff` hook (synchronous compute on explicit Compare, memoized by inputs) in `src/hooks/useDiff.ts`
-- [ ] T023 [P] [US1] Implement `useScrollSync` hook (mirror scrollTop/scrollLeft, loop-guarded) in `src/hooks/useScrollSync.ts`
-- [ ] T024 [P] [US1] Implement `TextEditor` (monospace, paste, whitespace-preserving, focus ring, label) in `src/components/editors/TextEditor.tsx`
-- [ ] T025 [US1] Implement minimal `EditorToolbar` with the Compare primary action in `src/components/editors/EditorToolbar.tsx`
-- [ ] T026 [P] [US1] Implement `DiffRow` (left/right cells, line numbers, token classes by type, `white-space: pre`, +/-/~ sign) in `src/components/diff/DiffRow.tsx`
-- [ ] T027 [P] [US1] Implement `DiffPanelHeader` (sticky column header) in `src/components/diff/DiffPanelHeader.tsx`
-- [ ] T028 [P] [US1] Implement `DiffLegend` (Added/Removed/Modified/Unchanged with label+sign, not color-only) in `src/components/diff/DiffLegend.tsx`
-- [ ] T029 [US1] Implement `DiffViewer` (render blocks/rows, two scroll-synced columns, sticky headers, changes counter badge) in `src/components/diff/DiffViewer.tsx`
-- [ ] T030 [US1] Wire editors → `useDiff` → `DiffViewer` in `src/App.tsx`; render legend + counter
+- [x] T018 [P] [US1] Implement `normalizeEol` + `toLines` in `src/lib/utils.ts` (EOL-only normalization, no trim)
+- [x] T019 [US1] Implement `computeLineOps` (jsdiff `diffArrays` wrapper → `LineOp[]`) in `src/features/compare/diff/computeDiff.ts`
+- [x] T020 [US1] Implement `alignRows` (pair adjacent removed+added → modified; placeholders; per-side 1-based line numbers) in `src/features/compare/diff/alignRows.ts`
+- [x] T021 [US1] Implement `computeStats` in `src/features/compare/diff/computeDiff.ts` and assemble `computeDiffResult` (no collapsing yet: single blocks) in `src/features/compare/diff/index.ts`
+- [x] T022 [P] [US1] Implement `useDiff` hook (synchronous compute on explicit Compare) in `src/features/compare/hooks/useDiff.ts`
+- [x] T023 [P] [US1] Implement `useScrollSync` hook (mirror scrollTop/scrollLeft, loop-guarded) in `src/features/compare/hooks/useScrollSync.ts`
+- [x] T024 [P] [US1] Implement `TextEditor` (monospace, paste, whitespace-preserving, focus ring, label) in `src/features/compare/components/TextEditor.tsx`
+- [x] T025 [US1] Implement minimal `EditorToolbar` with the Compare primary action in `src/features/compare/components/EditorToolbar.tsx`
+- [x] T026 [P] [US1] Implement `DiffRow` (left/right cells, line numbers, token classes by type, `white-space: pre`, +/-/~ sign) in `src/features/compare/components/DiffRow.tsx`
+- [x] T027 [P] [US1] Implement `DiffPanelHeader` (sticky column header) in `src/features/compare/components/DiffPanelHeader.tsx`
+- [x] T028 [P] [US1] Implement `DiffLegend` (Added/Removed/Modified/Unchanged with label+sign, not color-only) in `src/features/compare/components/DiffLegend.tsx`
+- [x] T029 [US1] Implement `DiffViewer` (render blocks/rows, sticky headers, changes counter badge) in `src/features/compare/components/DiffViewer.tsx`
+- [x] T030 [US1] Wire editors → `useDiff` → `DiffViewer` in `src/features/compare/CompareFeature.tsx` (render legend + counter); mount via `src/App.tsx`
 
-**Checkpoint**: US1 is fully functional and independently testable — the MVP.
+**Checkpoint**: ✅ US1 is fully functional and independently testable — the MVP.
 
 ---
 
@@ -110,10 +114,10 @@ contents; reset returns to initial state.
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Extend `EditorToolbar` with Load Example, Swap (secondary/ghost variants) in `src/components/editors/EditorToolbar.tsx`
-- [ ] T034 [US2] Add independent Clear button to `TextEditor` (`onClear`) in `src/components/editors/TextEditor.tsx`
+- [ ] T033 [US2] Extend `EditorToolbar` with Load Example, Swap (secondary/ghost variants) in `src/features/compare/components/EditorToolbar.tsx`
+- [ ] T034 [US2] Add independent Clear button to `TextEditor` (`onClear`) in `src/features/compare/components/TextEditor.tsx`
 - [ ] T035 [P] [US2] Implement `Header` (logo, title, theme toggle, reset) in `src/components/layout/Header.tsx`
-- [ ] T036 [US2] Implement input state handlers in `src/App.tsx` (clear-one, swap, load-example from `src/lib/example.ts`, reset)
+- [ ] T036 [US2] Implement input state handlers in `src/features/compare/CompareFeature.tsx` (clear-one, swap, load-example from `src/lib/example.ts`, reset)
 
 **Checkpoint**: US1 + US2 both work independently.
 
@@ -134,12 +138,12 @@ count; expand/collapse works; Expand All reveals all; changing context updates v
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement `buildBlocks` (group unchanged; collapse beyond `2*context+1`; compute `hiddenCount`) in `src/lib/diff/collapse.ts`
-- [ ] T040 [US3] Integrate `buildBlocks` into `computeDiffResult` using `DiffOptions.contextLines` in `src/lib/diff/index.ts`
-- [ ] T041 [P] [US3] Implement `useCollapse` hook (per-block expanded set, Expand All, global toggle) in `src/hooks/useCollapse.ts`
-- [ ] T042 [P] [US3] Implement `CollapsedBlock` (button, `aria-expanded`, "N unchanged lines hidden", 150–200ms transition) in `src/components/diff/CollapsedBlock.tsx`
-- [ ] T043 [US3] Implement `DiffControls` (collapse toggle, Expand All, context selector, changes counter) in `src/components/diff/DiffControls.tsx`
-- [ ] T044 [US3] Wire collapse state + context selector into `DiffViewer`/`App.tsx` (recompute on context change)
+- [ ] T039 [US3] Implement `buildBlocks` (group unchanged; collapse beyond `2*context+1`; compute `hiddenCount`) in `src/features/compare/diff/collapse.ts`
+- [ ] T040 [US3] Integrate `buildBlocks` into `computeDiffResult` using `DiffOptions.contextLines` in `src/features/compare/diff/index.ts`
+- [ ] T041 [P] [US3] Implement `useCollapse` hook (per-block expanded set, Expand All, global toggle) in `src/features/compare/hooks/useCollapse.ts`
+- [ ] T042 [P] [US3] Implement `CollapsedBlock` (button, `aria-expanded`, "N unchanged lines hidden", 150–200ms transition) in `src/features/compare/components/CollapsedBlock.tsx`
+- [ ] T043 [US3] Implement `DiffControls` (collapse toggle, Expand All, context selector, changes counter) in `src/features/compare/components/DiffControls.tsx`
+- [ ] T044 [US3] Wire collapse state + context selector into `DiffViewer`/`CompareFeature.tsx` (recompute on context change)
 
 **Checkpoint**: US1 + US2 + US3 all independently functional.
 
@@ -160,10 +164,10 @@ responsive; controls show hover/focus/active feedback.
 
 ### Implementation for User Story 4
 
-- [ ] T047 [P] [US4] Implement `EmptyState` (illustration, helper text, CTA) in `src/components/states/EmptyState.tsx`; render when `result === null` in `src/App.tsx`
-- [ ] T048 [US4] Implement `diff.worker.ts` importing `computeDiffResult` (no logic duplication) in `src/workers/diff.worker.ts` per contracts/diff-engine.md worker contract
-- [ ] T049 [US4] Extend `useDiff` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/hooks/useDiff.ts`
-- [ ] T050 [US4] Add loading feedback (disabled Compare + spinner) in `EditorToolbar` and viewer in `src/components/editors/EditorToolbar.tsx` / `src/components/diff/DiffViewer.tsx`
+- [ ] T047 [P] [US4] Implement `EmptyState` (illustration, helper text, CTA) in `src/features/compare/components/EmptyState.tsx`; render when `result === null` in `src/features/compare/CompareFeature.tsx`
+- [ ] T048 [US4] Implement `diff.worker.ts` importing `computeDiffResult` (no logic duplication) in `src/features/compare/workers/diff.worker.ts` per contracts/diff-engine.md worker contract
+- [ ] T049 [US4] Extend `useDiff` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/features/compare/hooks/useDiff.ts`
+- [ ] T050 [US4] Add loading feedback (disabled Compare + spinner) in `EditorToolbar` and viewer in `src/features/compare/components/EditorToolbar.tsx` / `src/features/compare/components/DiffViewer.tsx`
 - [ ] T051 [P] [US4] Ensure hover/focus/active states + 150–200ms transitions on all `src/components/ui/` primitives
 
 **Checkpoint**: All four user stories independently functional.
@@ -175,10 +179,10 @@ responsive; controls show hover/focus/active feedback.
 **Purpose**: Accessibility, performance, footer, docs, and final validation across all stories.
 
 - [ ] T052 [P] Implement `Footer` (keyboard shortcuts + navigation hints) in `src/components/layout/Footer.tsx`
-- [ ] T053 [US1] Add visually-hidden ARIA live region announcing "N changes" after compare in `src/components/diff/DiffViewer.tsx`
+- [ ] T053 [US1] Add visually-hidden ARIA live region announcing "N changes" after compare in `src/features/compare/components/DiffViewer.tsx`
 - [ ] T054 Accessibility pass: keyboard nav order, `aria-label`s on icon buttons, focus visible, `prefers-reduced-motion`; run an automated a11y/contrast check (WCAG AA) across the app
 - [ ] T055 [P] Performance: optional row windowing in `DiffViewer` for very large results (preserve scroll sync + line numbers) per research D6
-- [ ] T056 [P] Add theme toggle behavior (dark default; optional light) wired to `Header` in `src/App.tsx`/`src/index.css`
+- [ ] T056 [P] Add theme toggle behavior (dark default; optional light) wired to `Header` in `src/components/layout/Header.tsx`/`src/index.css`
 - [ ] T057 [P] Write `README.md` (setup with yarn, design decisions, architecture overview, future improvements) at `view_diff/README.md`
 - [ ] T058 Run `quickstart.md` validation scenarios V1–V6; ensure `yarn test` green and `yarn build` passes with strict TS
 
@@ -206,7 +210,7 @@ responsive; controls show hover/focus/active feedback.
 ### Within Each User Story
 
 - Tests written first and failing → then implementation.
-- Pure engine (`src/lib/`) before hooks before components before `App.tsx` wiring.
+- Pure engine (`src/features/compare/diff/`, `src/lib/`) before hooks before components before feature/`App.tsx` wiring.
 
 ### Parallel Opportunities
 
@@ -227,10 +231,10 @@ Task: "Unit tests for computeStats/computeDiffResult in tests/unit/diff/result.t
 Task: "Component test for compare flow in tests/components/DiffViewer.test.tsx"
 
 # Then parallel components:
-Task: "Implement TextEditor in src/components/editors/TextEditor.tsx"
-Task: "Implement DiffRow in src/components/diff/DiffRow.tsx"
-Task: "Implement DiffPanelHeader in src/components/diff/DiffPanelHeader.tsx"
-Task: "Implement DiffLegend in src/components/diff/DiffLegend.tsx"
+Task: "Implement TextEditor in src/features/compare/components/TextEditor.tsx"
+Task: "Implement DiffRow in src/features/compare/components/DiffRow.tsx"
+Task: "Implement DiffPanelHeader in src/features/compare/components/DiffPanelHeader.tsx"
+Task: "Implement DiffLegend in src/features/compare/components/DiffLegend.tsx"
 ```
 
 ---
@@ -252,7 +256,7 @@ does not break previous stories.
 
 - [P] = different files, no incomplete dependencies.
 - Tests are included per the spec's Testing section (Vitest + RTL); verify they fail before implementing.
-- Keep `src/lib/` pure (no React/DOM) so it runs in the worker and under Vitest identically.
+- Keep the engine (`src/features/compare/diff/`) and `src/lib/` pure (no React/DOM) so it runs in the worker and under Vitest identically.
 - Consume design tokens only — no raw hex — per constitution Principle III.
 - Commit after each task or logical group; stop at any checkpoint to validate a story independently.
 
