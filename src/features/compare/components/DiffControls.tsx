@@ -37,8 +37,8 @@ export function DiffControls({ result }: DiffControlsProps) {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border-default bg-surface px-3 py-2">
-      {/* Changes summary */}
-      <div className="flex flex-wrap items-center gap-2" aria-live="polite">
+      {/* Changes summary (announced via the sr-only live region in DiffViewer) */}
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium text-text-secondary">
           {isIdentical ? 'No changes' : pluralize(stats.totalChanges, 'change')}
         </span>

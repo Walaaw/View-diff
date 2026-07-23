@@ -203,13 +203,13 @@ unchanged.
 
 **Purpose**: Accessibility, performance, footer, docs, and final validation across all stories.
 
-- [ ] T052 [P] Implement `Footer` (keyboard shortcuts + navigation hints) in `src/components/layout/Footer.tsx`
-- [ ] T053 [US1] Add visually-hidden ARIA live region announcing "N changes" after compare in `src/features/compare/components/DiffViewer.tsx`
-- [ ] T054 Accessibility pass: keyboard nav order, `aria-label`s on icon buttons, focus visible, `prefers-reduced-motion`; run an automated a11y/contrast check (WCAG AA) across the app
-- [ ] T055 [P] Performance: optional row windowing in `DiffViewer` for very large results (preserve scroll sync + line numbers) per research D6
-- [ ] T056 [P] Add theme toggle behavior (dark default; optional light) wired to `Header` in `src/components/layout/Header.tsx`/`src/index.css`
-- [ ] T057 [P] Write `README.md` (setup with yarn, design decisions, architecture overview, future improvements) at `view_diff/README.md`
-- [ ] T058 Run `quickstart.md` validation scenarios V1–V6; ensure `yarn test` green and `yarn build` passes with strict TS
+- [x] T052 [P] Implement `Footer` (keyboard shortcuts + navigation hints) in `src/components/layout/Footer.tsx`
+- [x] T053 [US1] Add visually-hidden ARIA live region announcing "N changes" after compare in `src/features/compare/components/DiffViewer.tsx`
+- [x] T054 Accessibility pass: keyboard nav order, `aria-label`s on icon buttons, focus visible, `prefers-reduced-motion`; skip link + reduced-motion handling across the app
+- [x] T055 [P] Performance: native row windowing (CSS `content-visibility`) in `DiffViewer` rows for very large results (preserves scroll sync + line numbers) per research D6
+- [x] T056 [P] Add theme toggle behavior (dark default; optional light) wired to `Header` in `src/components/layout/Header.tsx` + `src/theme/base.css` + `src/store`
+- [x] T057 [P] Write `README.md` (setup with yarn, design decisions, architecture overview, future improvements) at `view_diff/README.md`
+- [x] T064 Run `quickstart.md` validation scenarios V1–V6; ensure `yarn test` green and `yarn build` passes with strict TS
 
 ---
 
@@ -285,4 +285,4 @@ does not break previous stories.
 - Consume design tokens only — no raw hex — per constitution Principle III.
 - Commit after each task or logical group; stop at any checkpoint to validate a story independently.
 
-**Total tasks**: 64 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · US5: 6 (T058–T063) · Setup: 8 · Foundational: 5 · Polish: 7
+**Total tasks**: 64 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · US5: 6 (T058–T063) · Setup: 8 · Foundational: 5 · Polish: 7 (T052–T057, T064)

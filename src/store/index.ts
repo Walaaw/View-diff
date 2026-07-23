@@ -17,6 +17,17 @@ import {
  * added, split this into per-feature slices (see docs) — components only ever
  * touch `useAppStore`, so that refactor won't reach into feature code.
  */
+export type Theme = 'dark' | 'light'
+
+const THEME_STORAGE_KEY = 'view-diff-theme'
+
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'dark'
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+  // Dark-first per the constitution; only an explicit stored choice overrides.
+  return stored === 'light' ? 'light' : 'dark'
+}
+
 export interface AppStore {
   // --- inputs & result ---
   original: string
@@ -25,6 +36,12 @@ export interface AppStore {
   status: DiffStatus
   /** Monotonic id of the latest compare; used to discard stale worker results. */
   requestId: number
+
+  // --- app chrome ---
+  /** Active color theme (dark default). */
+  theme: Theme
+  /** Toggle between dark and light and persist the choice. */
+  toggleTheme: () => void
 
   // --- collapse / context UI state (US3) ---
   /** Context lines shown around changes; drives collapse building. */
@@ -102,6 +119,15 @@ export const useAppStore = create<AppStore>((set, get) => {
     result: null,
     status: 'idle',
     requestId: 0,
+
+    theme: getInitialTheme(),
+    toggleTheme: () => {
+      const theme: Theme = get().theme === 'dark' ? 'light' : 'dark'
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+      }
+      set({ theme })
+    },
 
     contextLines: DEFAULT_CONTEXT_LINES,
     collapseEnabled: true,

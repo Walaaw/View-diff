@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react'
 import { Loader2 } from 'lucide-react'
 import { Separator } from '@/components/ui'
 import {
@@ -30,9 +31,21 @@ export function CompareFeature() {
   const swap = useAppStore((s) => s.swap)
   const loadExample = useAppStore((s) => s.loadExample)
 
+  // Ctrl/Cmd+Enter from within either editor triggers Compare.
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && canCompare) {
+      e.preventDefault()
+      compare()
+    }
+  }
+
   return (
     <>
-      <section aria-label="Text editors" className="grid gap-4 md:grid-cols-2">
+      <section
+        aria-label="Text editors"
+        className="grid gap-4 md:grid-cols-2"
+        onKeyDown={handleKeyDown}
+      >
         <TextEditor
           id="editor-original"
           label="Original"

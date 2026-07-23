@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from 'react'
 import { FileText, Loader2, Upload, X } from 'lucide-react'
 import { Button, Textarea } from '@/components/ui'
-import { formatBytes } from '@/lib/utils'
+import { formatBytes, pluralize } from '@/lib/utils'
 import { readTextFile } from '../files/readTextFile'
 
 export interface TextEditorProps {
@@ -60,6 +60,8 @@ export function TextEditor({
   // Only show the chip while the editor still holds exactly what we loaded;
   // any manual edit, swap, clear, or reset changes `value` and hides it.
   const showChip = loadedFile !== null && loadedFile.text === value
+  const lineCount = value === '' ? 0 : value.split(/\r\n|\r|\n/).length
+  const charCount = value.length
 
   return (
     <div className="flex flex-col gap-2">
@@ -136,7 +138,10 @@ export function TextEditor({
         <Textarea
           id={id}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value)
+            if (error) setError(null) // auto-dismiss on manual edit
+          }}
           placeholder={placeholder}
           className="min-h-56 resize-y"
           aria-label={label}
@@ -168,16 +173,21 @@ export function TextEditor({
         />
       </div>
 
-      {error ? (
-        <p id={errorId} role="alert" className="text-xs text-removed-border">
-          {error}
-        </p>
-      ) : (
-        <p className="flex items-center gap-1.5 text-xs text-text-muted">
-          <Upload className="size-3 shrink-0" aria-hidden="true" />
-          Drag &amp; drop a file here, or use Upload
-        </p>
-      )}
+      <div className="flex items-center justify-between gap-2 text-xs">
+        {error ? (
+          <p id={errorId} role="alert" className="text-removed-border">
+            {error}
+          </p>
+        ) : (
+          <p className="flex items-center gap-1.5 text-text-muted">
+            <Upload className="size-3 shrink-0" aria-hidden="true" />
+            Drag &amp; drop a file here, or use Upload
+          </p>
+        )}
+        <span className="shrink-0 text-text-muted" aria-hidden="true">
+          {pluralize(lineCount, 'line')} · {pluralize(charCount, 'char')}
+        </span>
+      </div>
     </div>
   )
 }
