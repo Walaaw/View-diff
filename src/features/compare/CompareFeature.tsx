@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Separator } from '@/components/ui'
 import {
   DiffLegend,
@@ -6,18 +5,27 @@ import {
   EditorToolbar,
   TextEditor,
 } from './components'
-import { useDiff } from './hooks'
+import { useAppStore, selectCanCompare } from '@/store'
 
 /**
- * Compare feature (US1): two editors, the Compare action, and the side-by-side
- * viewer. Self-contained — owns its input state and diff wiring.
+ * Compare feature (US1 + US2): two editors with per-editor clear, a toolbar
+ * (Compare / Swap / Load example), and the side-by-side viewer. State and
+ * actions come from the global store via fine-grained selectors.
  */
 export function CompareFeature() {
-  const [original, setOriginal] = useState('')
-  const [modified, setModified] = useState('')
-  const { result, status, compare } = useDiff()
+  const original = useAppStore((s) => s.original)
+  const modified = useAppStore((s) => s.modified)
+  const result = useAppStore((s) => s.result)
+  const status = useAppStore((s) => s.status)
+  const canCompare = useAppStore(selectCanCompare)
 
-  const canCompare = original.length > 0 || modified.length > 0
+  const setOriginal = useAppStore((s) => s.setOriginal)
+  const setModified = useAppStore((s) => s.setModified)
+  const compare = useAppStore((s) => s.compare)
+  const clearOriginal = useAppStore((s) => s.clearOriginal)
+  const clearModified = useAppStore((s) => s.clearModified)
+  const swap = useAppStore((s) => s.swap)
+  const loadExample = useAppStore((s) => s.loadExample)
 
   return (
     <>
@@ -27,6 +35,7 @@ export function CompareFeature() {
           label="Original"
           value={original}
           onChange={setOriginal}
+          onClear={clearOriginal}
           placeholder="Paste or type the original text…"
         />
         <TextEditor
@@ -34,15 +43,18 @@ export function CompareFeature() {
           label="Modified"
           value={modified}
           onChange={setModified}
+          onClear={clearModified}
           placeholder="Paste or type the modified text…"
         />
       </section>
 
       <div className="mt-4">
         <EditorToolbar
-          onCompare={() => compare(original, modified)}
+          onCompare={compare}
           canCompare={canCompare}
           isComputing={status === 'computing'}
+          onSwap={swap}
+          onLoadExample={loadExample}
         />
       </div>
 

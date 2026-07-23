@@ -109,17 +109,17 @@ contents; reset returns to initial state.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T031 [P] [US2] Component tests in `tests/components/EditorToolbar.test.tsx` (load example populates both; swap exchanges; clear affects only one editor)
-- [ ] T032 [P] [US2] Component test for reset in `tests/components/Header.test.tsx` (reset clears inputs and result)
+- [x] T031 [P] [US2] Component tests in `tests/components/EditorToolbar.test.tsx` (load example populates both; swap exchanges; clear affects only one editor)
+- [x] T032 [P] [US2] Component test for reset in `tests/components/Header.test.tsx` (reset clears inputs and result)
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Extend `EditorToolbar` with Load Example, Swap (secondary/ghost variants) in `src/features/compare/components/EditorToolbar.tsx`
-- [ ] T034 [US2] Add independent Clear button to `TextEditor` (`onClear`) in `src/features/compare/components/TextEditor.tsx`
-- [ ] T035 [P] [US2] Implement `Header` (logo, title, theme toggle, reset) in `src/components/layout/Header.tsx`
-- [ ] T036 [US2] Implement input state handlers in `src/features/compare/CompareFeature.tsx` (clear-one, swap, load-example from `src/lib/example.ts`, reset)
+- [x] T033 [US2] Extend `EditorToolbar` with Load Example, Swap (secondary/ghost variants) in `src/features/compare/components/EditorToolbar.tsx`
+- [x] T034 [US2] Add independent Clear button to `TextEditor` (`onClear`) in `src/features/compare/components/TextEditor.tsx`
+- [x] T035 [P] [US2] Implement `Header` (logo, title, theme toggle, reset) in `src/components/layout/Header.tsx`
+- [x] T036 [US2] Implement input state + actions in the global store `src/store/index.ts` (setOriginal/Modified, compare, clear-one, swap, load-example from `src/lib/example.ts`, reset) — consumed by `CompareFeature.tsx` and Header via selectors
 
-**Checkpoint**: US1 + US2 both work independently.
+**Checkpoint**: ✅ US1 + US2 both work independently.
 
 ---
 
@@ -160,13 +160,13 @@ responsive; controls show hover/focus/active feedback.
 ### Tests for User Story 4 ⚠️
 
 - [ ] T045 [P] [US4] Component test for empty state in `tests/components/EmptyState.test.tsx` (shown when result is null; CTA triggers load example)
-- [ ] T046 [P] [US4] Test loading/worker orchestration in `tests/components/useDiff.loading.test.ts` (status transitions idle→computing→ready; stale results discarded; worker mocked to run engine sync)
+- [ ] T046 [P] [US4] Test loading/worker orchestration in `tests/components/store.loading.test.ts` (status transitions idle→computing→ready; stale results discarded; worker mocked to run engine sync)
 
 ### Implementation for User Story 4
 
 - [ ] T047 [P] [US4] Implement `EmptyState` (illustration, helper text, CTA) in `src/features/compare/components/EmptyState.tsx`; render when `result === null` in `src/features/compare/CompareFeature.tsx`
 - [ ] T048 [US4] Implement `diff.worker.ts` importing `computeDiffResult` (no logic duplication) in `src/features/compare/workers/diff.worker.ts` per contracts/diff-engine.md worker contract
-- [ ] T049 [US4] Extend `useDiff` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/features/compare/hooks/useDiff.ts`
+- [ ] T049 [US4] Extend the store's `compare` to offload above a size threshold to the worker with `status` (idle/computing/ready) and request-id correlation in `src/store/index.ts`
 - [ ] T050 [US4] Add loading feedback (disabled Compare + spinner) in `EditorToolbar` and viewer in `src/features/compare/components/EditorToolbar.tsx` / `src/features/compare/components/DiffViewer.tsx`
 - [ ] T051 [P] [US4] Ensure hover/focus/active states + 150–200ms transitions on all `src/components/ui/` primitives
 
