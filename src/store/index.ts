@@ -1,14 +1,17 @@
 import { create } from 'zustand'
 import { EXAMPLE } from '@/lib/example'
-import { computeDiffResult } from '@/features/compare/diff'
+import { runCompare, type RunCompareOutput } from '@/features/compare/runCompare'
 import {
   shouldUseWorker,
   requestDiffViaWorker,
 } from '@/features/compare/workers/diffClient'
 import {
   DEFAULT_CONTEXT_LINES,
+  DEFAULT_LANGUAGE,
   type DiffResult,
   type DiffStatus,
+  type Language,
+  type SyntaxResult,
 } from '@/features/compare/types'
 
 /**
@@ -36,6 +39,18 @@ export interface AppStore {
   status: DiffStatus
   /** Monotonic id of the latest compare; used to discard stale worker results. */
   requestId: number
+
+  // --- syntax highlighting (US6) ---
+  /** Whether syntax highlighting is applied to the diff (default on). */
+  syntaxEnabled: boolean
+  /** Selected language ('auto' = detect). */
+  language: Language
+  /** Per-side syntax tokens for the current result, or null when off. */
+  syntax: SyntaxResult | null
+  /** Toggle syntax highlighting and recompute tokens for the current inputs. */
+  setSyntaxEnabled: (enabled: boolean) => void
+  /** Change the highlighting language and recompute for the current inputs. */
+  setLanguage: (language: Language) => void
 
   // --- app chrome ---
   /** Active color theme (dark default). */
@@ -74,35 +89,30 @@ export interface AppStore {
   expandAll: () => void
 }
 
-function runDiff(
-  original: string,
-  modified: string,
-  contextLines: number,
-): DiffResult {
-  return computeDiffResult(original, modified, { contextLines })
-}
-
 export const useAppStore = create<AppStore>((set, get) => {
   /**
-   * Run a compare, choosing the sync path (small inputs) or the worker
-   * (large inputs). Results are applied only if this request is still the
-   * latest — superseded (stale) results are discarded.
+   * Run a compare (diff + optional syntax tokens), choosing the sync path
+   * (small inputs) or the worker (large inputs). Output is applied only if this
+   * request is still the latest — superseded (stale) results are discarded.
+   * Block expansions are managed by the callers, not here, so recomputes that
+   * don't change block structure (e.g. syntax toggles) preserve them.
    */
   const compute = (
     original: string,
     modified: string,
     contextLines: number,
   ) => {
+    const { syntaxEnabled, language } = get()
     const id = get().requestId + 1
     set({ requestId: id, status: 'computing' })
 
-    const finish = (result: DiffResult) => {
+    const finish = (out: RunCompareOutput) => {
       if (get().requestId !== id) return // stale — a newer compare has started
-      set({ result, status: 'ready', expandedBlockIds: new Set<string>() })
+      set({ result: out.result, syntax: out.syntax, status: 'ready' })
     }
 
     if (!shouldUseWorker(original, modified)) {
-      finish(runDiff(original, modified, contextLines))
+      finish(runCompare(original, modified, { contextLines, syntaxEnabled, language }))
       return
     }
     requestDiffViaWorker({
@@ -110,6 +120,8 @@ export const useAppStore = create<AppStore>((set, get) => {
       originalText: original,
       modifiedText: modified,
       contextLines,
+      syntaxEnabled,
+      language,
     }).then(finish)
   }
 
@@ -119,6 +131,21 @@ export const useAppStore = create<AppStore>((set, get) => {
     result: null,
     status: 'idle',
     requestId: 0,
+
+    syntaxEnabled: true,
+    language: DEFAULT_LANGUAGE,
+    syntax: null,
+    setSyntaxEnabled: (enabled) => {
+      const { original, modified, result, contextLines } = get()
+      set({ syntaxEnabled: enabled })
+      // Block structure is unchanged, so expansions are preserved.
+      if (result) compute(original, modified, contextLines)
+    },
+    setLanguage: (language) => {
+      const { original, modified, result, contextLines } = get()
+      set({ language })
+      if (result) compute(original, modified, contextLines)
+    },
 
     theme: getInitialTheme(),
     toggleTheme: () => {
@@ -138,6 +165,7 @@ export const useAppStore = create<AppStore>((set, get) => {
 
     compare: () => {
       const { original, modified, contextLines } = get()
+      set({ expandedBlockIds: new Set<string>() })
       compute(original, modified, contextLines)
     },
 
@@ -146,6 +174,7 @@ export const useAppStore = create<AppStore>((set, get) => {
         original: '',
         modified: '',
         result: null,
+        syntax: null,
         status: 'idle',
         // Invalidate any in-flight worker compare so it can't repopulate.
         requestId: get().requestId + 1,
@@ -160,7 +189,10 @@ export const useAppStore = create<AppStore>((set, get) => {
       const { original, modified, result, contextLines } = get()
       set({ original: modified, modified: original })
       // Keep the displayed diff consistent with the swapped inputs.
-      if (result) compute(modified, original, contextLines)
+      if (result) {
+        set({ expandedBlockIds: new Set<string>() })
+        compute(modified, original, contextLines)
+      }
     },
 
     loadExample: () =>
@@ -169,7 +201,11 @@ export const useAppStore = create<AppStore>((set, get) => {
     setContextLines: (n) => {
       const { original, modified, result } = get()
       set({ contextLines: n })
-      if (result) compute(original, modified, n)
+      // Block ids change with context, so drop manual expansions.
+      if (result) {
+        set({ expandedBlockIds: new Set<string>() })
+        compute(original, modified, n)
+      }
     },
 
     setCollapseEnabled: (enabled) =>

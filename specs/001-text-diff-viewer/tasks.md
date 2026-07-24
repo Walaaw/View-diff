@@ -229,18 +229,18 @@ per-line spans; syntax token colors defined as design tokens (dark) with light o
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T065 [P] [US6] Unit test for `tokenizeToLines` (whole-doc highlight → per-line token arrays; multi-line constructs; unknown/undetected language falls back to a single plain token) in `tests/unit/highlight/tokenizeToLines.test.ts`
-- [ ] T066 [P] [US6] Component test for syntax highlighting in `tests/components/SyntaxHighlight.test.tsx` (spans rendered when enabled; toggle off → plain text; language selector switches grammar; change signs/backgrounds preserved)
+- [x] T065 [P] [US6] Unit test for `tokenizeToLines` (whole-doc highlight → per-line token arrays; multi-line constructs; unknown/undetected language falls back to a single plain token) in `tests/unit/highlight/tokenizeToLines.test.ts`
+- [x] T066 [P] [US6] Component test for syntax highlighting in `tests/components/SyntaxHighlight.test.tsx` (spans rendered when enabled; toggle off → plain text; change signs/backgrounds preserved)
 
 ### Implementation for User Story 6
 
-- [ ] T067 [US6] Add `lowlight` (+ `highlight.js`) dependency and a curated common-language set in `package.json`
-- [ ] T068 [US6] Implement `tokenizeToLines` (highlight whole text with the chosen/auto grammar, flatten the AST, split by newline into per-line `{ text, className }[]`, plain-text fallback) in `src/features/compare/highlight/tokenizeToLines.ts`
-- [ ] T069 [US6] Define syntax token colors as design tokens (dark) + light overrides in `src/theme/tokens.css` / `src/theme/base.css`, verified WCAG AA on default and changed-row backgrounds
-- [ ] T070 [US6] Extend the diff worker + client to compute per-line tokens alongside the diff (behind a flag) in `src/features/compare/workers/*`
-- [ ] T071 [US6] Add syntax state to the store: `syntaxEnabled` (default on) + `language` ('auto' + explicit), recompute on change, in `src/store/index.ts`
-- [ ] T072 [US6] Render tokens as spans (preserving whitespace + change signs; fallback to plain text when disabled/unavailable) in `src/features/compare/components/DiffRow.tsx`
-- [ ] T073 [US6] Add a language selector + syntax on/off toggle to `src/features/compare/components/DiffControls.tsx`
+- [x] T067 [US6] Add `lowlight` (+ `highlight.js`) dependency and a curated common-language set in `package.json`
+- [x] T068 [US6] Implement `tokenizeToLines` (highlight whole text with the chosen/auto grammar, flatten the AST, split by newline into per-line `{ text, className }[]`, plain-text fallback) in `src/features/compare/highlight/tokenizeToLines.ts`
+- [x] T069 [US6] Define syntax token colors as design tokens (dark) + light overrides in `src/theme/base.css`, tuned for AA on default and changed-row backgrounds
+- [x] T070 [US6] Extend the diff worker + client to compute per-line tokens alongside the diff (via shared `runCompare`) in `src/features/compare/workers/*` + `src/features/compare/runCompare.ts`
+- [x] T071 [US6] Add syntax state to the store: `syntaxEnabled` (default on) + `language` ('auto' + explicit), recompute on change, in `src/store/index.ts`
+- [x] T072 [US6] Render tokens as spans (preserving whitespace + change signs; fallback to plain text when disabled/unavailable) in `src/features/compare/components/DiffRow.tsx`
+- [x] T073 [US6] Add a language selector + syntax on/off toggle to `src/features/compare/components/DiffControls.tsx`
 
 **Checkpoint**: Code diffs are syntax-highlighted without affecting the diff result or accessibility.
 

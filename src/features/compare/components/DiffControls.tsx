@@ -10,7 +10,11 @@ import {
 } from '@/components/ui'
 import { pluralize } from '@/lib/utils'
 import { useAppStore } from '@/store'
-import { CONTEXT_LINE_OPTIONS, type DiffResult } from '../types'
+import {
+  CONTEXT_LINE_OPTIONS,
+  LANGUAGE_OPTIONS,
+  type DiffResult,
+} from '../types'
 
 export interface DiffControlsProps {
   result: DiffResult
@@ -29,6 +33,10 @@ export function DiffControls({ result }: DiffControlsProps) {
   const setContextLines = useAppStore((s) => s.setContextLines)
   const setCollapseEnabled = useAppStore((s) => s.setCollapseEnabled)
   const expandAll = useAppStore((s) => s.expandAll)
+  const syntaxEnabled = useAppStore((s) => s.syntaxEnabled)
+  const language = useAppStore((s) => s.language)
+  const setSyntaxEnabled = useAppStore((s) => s.setSyntaxEnabled)
+  const setLanguage = useAppStore((s) => s.setLanguage)
 
   const collapsible = blocks.filter((b) => b.collapsible)
   const hasCollapsible = collapsible.length > 0
@@ -81,6 +89,39 @@ export function DiffControls({ result }: DiffControlsProps) {
             onCheckedChange={setCollapseEnabled}
             aria-label="Collapse unchanged sections"
           />
+        </label>
+
+        <label
+          htmlFor="syntax-toggle"
+          className="flex items-center gap-2 text-xs text-text-secondary"
+        >
+          Syntax
+          <Switch
+            id="syntax-toggle"
+            checked={syntaxEnabled}
+            onCheckedChange={setSyntaxEnabled}
+            aria-label="Syntax highlighting"
+          />
+        </label>
+
+        <label className="flex items-center gap-2 text-xs text-text-secondary">
+          Language
+          <Select
+            value={language}
+            onValueChange={setLanguage}
+            disabled={!syntaxEnabled}
+          >
+            <SelectTrigger className="h-8 w-32" aria-label="Highlighting language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
 
         <Button

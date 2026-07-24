@@ -11,3 +11,5 @@ export {
   buildBlocks,
 } from './diff'
 export { useScrollSync } from './hooks'
+export { tokenizeToLines } from './highlight/tokenizeToLines'
+export { runCompare, type RunCompareOutput } from './runCompare'

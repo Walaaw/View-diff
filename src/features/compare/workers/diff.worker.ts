@@ -1,15 +1,20 @@
 /// <reference lib="webworker" />
-import { computeDiffResult } from '../diff'
+import { runCompare } from '../runCompare'
 import type { DiffRequest, DiffResponse } from './workerTypes'
 
 /**
- * Off-main-thread diff computation. Imports and calls the same pure
- * `computeDiffResult` used on the main thread — no diff logic is duplicated
- * (see contracts/diff-engine.md worker contract).
+ * Off-main-thread diff + syntax tokenization. Imports and calls the same pure
+ * `runCompare` used on the main thread — no logic is duplicated (see
+ * contracts/diff-engine.md worker contract).
  */
 self.addEventListener('message', (event: MessageEvent<DiffRequest>) => {
-  const { id, originalText, modifiedText, contextLines } = event.data
-  const result = computeDiffResult(originalText, modifiedText, { contextLines })
-  const response: DiffResponse = { id, result }
+  const { id, originalText, modifiedText, contextLines, syntaxEnabled, language } =
+    event.data
+  const { result, syntax } = runCompare(originalText, modifiedText, {
+    contextLines,
+    syntaxEnabled,
+    language,
+  })
+  const response: DiffResponse = { id, result, syntax }
   ;(self as unknown as DedicatedWorkerGlobalScope).postMessage(response)
 })

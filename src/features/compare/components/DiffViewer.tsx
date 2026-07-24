@@ -20,19 +20,30 @@ export function DiffViewer({ result }: DiffViewerProps) {
   const collapseEnabled = useAppStore((s) => s.collapseEnabled)
   const expandedBlockIds = useAppStore((s) => s.expandedBlockIds)
   const toggleBlock = useAppStore((s) => s.toggleBlock)
+  const syntaxEnabled = useAppStore((s) => s.syntaxEnabled)
+  const syntax = useAppStore((s) => s.syntax)
+
+  // Look up per-line syntax tokens by side + 1-based line number.
+  const tokensFor = (side: 'original' | 'modified', lineNumber: number | null) => {
+    if (!syntaxEnabled || !syntax || lineNumber === null) return undefined
+    return syntax[side][lineNumber - 1]
+  }
+
+  const renderRow = (row: DiffBlock['rows'][number]) => (
+    <DiffRow
+      key={row.id}
+      row={row}
+      leftTokens={tokensFor('original', row.left.lineNumber)}
+      rightTokens={tokensFor('modified', row.right.lineNumber)}
+    />
+  )
 
   const renderBlock = (block: DiffBlock) => {
     const collapsed =
       collapseEnabled && block.collapsible && !expandedBlockIds.has(block.id)
 
     if (!collapsed) {
-      return (
-        <Fragment key={block.id}>
-          {block.rows.map((row) => (
-            <DiffRow key={row.id} row={row} />
-          ))}
-        </Fragment>
-      )
+      return <Fragment key={block.id}>{block.rows.map(renderRow)}</Fragment>
     }
 
     const top = block.rows.slice(0, block.contextBefore)
@@ -40,16 +51,12 @@ export function DiffViewer({ result }: DiffViewerProps) {
 
     return (
       <Fragment key={block.id}>
-        {top.map((row) => (
-          <DiffRow key={row.id} row={row} />
-        ))}
+        {top.map(renderRow)}
         <CollapsedBlock
           hiddenCount={block.hiddenCount}
           onExpand={() => toggleBlock(block.id)}
         />
-        {bottom.map((row) => (
-          <DiffRow key={row.id} row={row} />
-        ))}
+        {bottom.map(renderRow)}
       </Fragment>
     )
   }

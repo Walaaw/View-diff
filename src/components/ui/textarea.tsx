@@ -12,9 +12,10 @@ function Textarea({
   return (
     <textarea
       className={cn(
-        'flex min-h-40 w-full rounded-input border border-border-default bg-surface px-3 py-2 font-mono text-sm text-text-primary placeholder:text-text-muted',
-        'transition-colors duration-150 hover:border-border-hover',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-app',
+        'flex min-h-40 w-full rounded-input border border-border-default bg-surface px-3.5 py-2.5 font-mono text-sm leading-6 text-text-primary placeholder:text-text-muted',
+        'shadow-sm [tab-size:2]',
+        'transition-[color,border-color,box-shadow] duration-150 hover:border-border-hover',
+        'focus-visible:border-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/15',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
