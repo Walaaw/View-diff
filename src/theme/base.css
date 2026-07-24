@@ -5,6 +5,19 @@
 @layer base {
   :root {
     color-scheme: dark;
+
+    /* Syntax highlighting palette (dark). Tuned to stay legible on the surface
+       and on changed-row backgrounds (added/removed/modified). */
+    --hljs-comment: #7d8bb0;
+    --hljs-keyword: #c792ea;
+    --hljs-string: #b3e08c;
+    --hljs-number: #ffcb6b;
+    --hljs-literal: #ff9cac;
+    --hljs-title: #86a9ff;
+    --hljs-built-in: #f6a37a;
+    --hljs-attr: #ffcb6b;
+    --hljs-meta: #89ddff;
+    --hljs-tag: #f28090;
   }
 
   /*
@@ -15,32 +28,104 @@
   html.light {
     color-scheme: light;
 
-    --color-app: #f8fafc;
+    /* Layered greys: page is a touch darker than cards so surfaces read as
+       elevated instead of blending into the background. */
+    --color-app: #eef1f6;
     --color-surface: #ffffff;
-    --color-elevated: #f1f5f9;
+    --color-elevated: #f6f8fb;
 
-    --color-border-default: #e2e8f0;
-    --color-border-hover: #cbd5e1;
+    --color-border-default: #d5dbe6;
+    --color-border-hover: #b6bfce;
 
     --color-text-primary: #0f172a;
-    --color-text-secondary: #334155;
-    --color-text-muted: #64748b;
+    --color-text-secondary: #3b475c;
+    --color-text-muted: #667085;
 
     --color-accent: #4f46e5;
     --color-accent-hover: #4338ca;
     --color-accent-fg: #ffffff;
 
-    --color-added-bg: #dcfce7;
+    --color-added-bg: #e4f7ea;
     --color-added-border: #16a34a;
     --color-added-text: #14532d;
 
-    --color-removed-bg: #fee2e2;
-    --color-removed-border: #b91c1c;
+    --color-removed-bg: #fdeaea;
+    --color-removed-border: #dc2626;
     --color-removed-text: #7f1d1d;
 
-    --color-modified-bg: #fef9c3;
-    --color-modified-border: #b45309;
+    --color-modified-bg: #fdf4d7;
+    --color-modified-border: #d97706;
     --color-modified-text: #713f12;
+
+    /* Syntax highlighting palette (light) — darker tokens for AA on light bg. */
+    --hljs-comment: #6a737d;
+    --hljs-keyword: #a626a4;
+    --hljs-string: #1f7a33;
+    --hljs-number: #a6560a;
+    --hljs-literal: #cb2431;
+    --hljs-title: #1f6feb;
+    --hljs-built-in: #a04619;
+    --hljs-attr: #6f42c1;
+    --hljs-meta: #005cc5;
+    --hljs-tag: #1f7a33;
+  }
+
+  /* highlight.js token classes → design-token colors (US6). */
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--hljs-comment);
+    font-style: italic;
+  }
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-subst {
+    color: var(--hljs-keyword);
+  }
+  .hljs-string,
+  .hljs-regexp,
+  .hljs-addition,
+  .hljs-meta-string {
+    color: var(--hljs-string);
+  }
+  .hljs-number,
+  .hljs-literal,
+  .hljs-boolean {
+    color: var(--hljs-number);
+  }
+  .hljs-title,
+  .hljs-section,
+  .hljs-name,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    color: var(--hljs-title);
+  }
+  .hljs-built_in,
+  .hljs-type,
+  .hljs-class {
+    color: var(--hljs-built-in);
+  }
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-property,
+  .hljs-variable,
+  .hljs-template-variable {
+    color: var(--hljs-attr);
+  }
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-meta,
+  .hljs-link {
+    color: var(--hljs-meta);
+  }
+  .hljs-tag,
+  .hljs-deletion {
+    color: var(--hljs-tag);
+  }
+  .hljs-emphasis {
+    font-style: italic;
+  }
+  .hljs-strong {
+    font-weight: 600;
   }
 
   html {
@@ -63,6 +148,41 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+
+  /*
+   * Custom, theme-aware scrollbars. Thin and unobtrusive, they use the border
+   * tokens so they read correctly in both dark and light modes and only gain
+   * emphasis on hover. Firefox uses the standard properties; WebKit/Blink use
+   * the pseudo-elements with a transparent inset border for a "floating" thumb.
+   */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-hover) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-default);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-hover);
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  /* Hide the native resize grip (diagonal lines) that clashes with the rounded
+     corner and looks like a "cut". Vertical drag-to-resize still works. */
+  textarea::-webkit-resizer {
+    background: transparent;
   }
 
   /*

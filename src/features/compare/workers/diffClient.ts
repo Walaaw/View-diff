@@ -1,4 +1,4 @@
-import type { DiffResult } from '../types'
+import type { RunCompareOutput } from '../runCompare'
 import type { DiffRequest, DiffResponse } from './workerTypes'
 
 /**
@@ -12,7 +12,7 @@ function defaultShouldUseWorker(original: string, modified: string): boolean {
 }
 
 let worker: Worker | null = null
-const pending = new Map<number, (result: DiffResult) => void>()
+const pending = new Map<number, (out: RunCompareOutput) => void>()
 
 function getWorker(): Worker {
   if (!worker) {
@@ -20,18 +20,18 @@ function getWorker(): Worker {
       type: 'module',
     })
     worker.addEventListener('message', (event: MessageEvent<DiffResponse>) => {
-      const { id, result } = event.data
+      const { id, result, syntax } = event.data
       const resolve = pending.get(id)
       if (resolve) {
         pending.delete(id)
-        resolve(result)
+        resolve({ result, syntax })
       }
     })
   }
   return worker
 }
 
-function defaultRequestDiffViaWorker(req: DiffRequest): Promise<DiffResult> {
+function defaultRequestDiffViaWorker(req: DiffRequest): Promise<RunCompareOutput> {
   return new Promise((resolve) => {
     pending.set(req.id, resolve)
     getWorker().postMessage(req)
@@ -50,17 +50,17 @@ export function shouldUseWorker(original: string, modified: string): boolean {
 }
 
 /**
- * Compute a diff on the worker. The returned promise resolves with the result
- * whose `id` matches this request; the caller discards results that have since
- * been superseded (staleness).
+ * Compute a diff (+ optional syntax tokens) on the worker. Resolves with the
+ * output whose `id` matches this request; the caller discards results that have
+ * since been superseded (staleness).
  */
-export function requestDiffViaWorker(req: DiffRequest): Promise<DiffResult> {
+export function requestDiffViaWorker(req: DiffRequest): Promise<RunCompareOutput> {
   return requestDiffViaWorkerImpl(req)
 }
 
 export interface DiffClientOverrides {
   shouldUseWorker?: (original: string, modified: string) => boolean
-  requestDiffViaWorker?: (req: DiffRequest) => Promise<DiffResult>
+  requestDiffViaWorker?: (req: DiffRequest) => Promise<RunCompareOutput>
 }
 
 /** Test seam: override the worker client implementation. */

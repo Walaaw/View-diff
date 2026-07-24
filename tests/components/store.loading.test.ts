@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { useAppStore } from '@/store'
 import { computeDiffResult } from '@/features/compare'
-import type { DiffResult } from '@/features/compare'
+import type { RunCompareOutput } from '@/features/compare/runCompare'
 import {
   __setDiffClientForTests,
   __resetDiffClientForTests,
@@ -15,15 +15,16 @@ import type { DiffRequest } from '@/features/compare/workers/workerTypes'
  */
 const deferreds: Array<{
   req: DiffRequest
-  resolve: (r: DiffResult) => void
+  resolve: (out: RunCompareOutput) => void
 }> = []
 
 function resolveWith(entry: (typeof deferreds)[number]) {
-  entry.resolve(
-    computeDiffResult(entry.req.originalText, entry.req.modifiedText, {
+  entry.resolve({
+    result: computeDiffResult(entry.req.originalText, entry.req.modifiedText, {
       contextLines: entry.req.contextLines,
     }),
-  )
+    syntax: null,
+  })
 }
 
 // Flush pending microtasks (the .then() that applies the worker result).

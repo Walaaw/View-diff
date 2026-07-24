@@ -2,19 +2,22 @@
 
 A fast, accessible, dark-first web app for comparing two blocks of text side by side. Paste,
 type, or load files into two editors and get a clear, aligned, line-by-line diff with change
-counts, collapsible unchanged sections, and a light/dark theme.
+counts, collapsible unchanged sections, syntax highlighting, and a light/dark theme.
 
 ## Features
 
 - **Side-by-side diff** with per-side line numbers and aligned rows.
 - **Change classification** — added / removed / modified / unchanged, distinguishable by color
   **and** a sign (`+ / - / ~`) so color is never the only cue.
+- **Syntax highlighting** — code is tokenized (via `lowlight`/highlight.js) with automatic
+  language detection or an explicit language selector, and can be toggled off. Token colors are
+  theme-aware and tuned for AA contrast on both default and changed-row backgrounds.
 - **Change counts** and a legend.
 - **Collapsible unchanged blocks** with an adjustable number of context lines and Expand All.
 - **File input** — per-editor Upload button and drag-and-drop, with a loaded-file chip
   (name + size), size/type guards, and clear error messages.
-- **Large inputs stay responsive** — big compares run in a Web Worker; the UI shows loading
-  feedback and remains interactive.
+- **Large inputs stay responsive** — big compares (diff **and** tokenization) run in a Web
+  Worker; the UI shows loading feedback and remains interactive.
 - **Editor conveniences** — clear, swap, load example, live line/character counts, and
   `Ctrl` / `⌘` + `Enter` to compare.
 - **Themes** — dark by default (per the design constitution) with an optional light theme,
@@ -42,6 +45,7 @@ yarn coverage     # tests with coverage
 - **React 19** + **TypeScript** (strict), built with **Vite**.
 - **Tailwind CSS v4** (CSS-first `@theme` tokens) with **shadcn/ui**-style primitives.
 - **jsdiff** for the diff algorithm.
+- **lowlight** (highlight.js) for syntax tokenization.
 - **Zustand** for global state.
 - **Vitest** + **React Testing Library** for tests.
 
@@ -62,9 +66,11 @@ src/
     CompareFeature.tsx        # the feature root (editors + toolbar + viewer)
     components/               # TextEditor, EditorToolbar, DiffViewer, DiffControls, …
     diff/                     # pure diff engine (align, stats, collapse) — no React/DOM
+    highlight/                # tokenizeToLines (syntax highlighting via lowlight)
     files/                    # readTextFile (upload/drop parsing + guards)
     hooks/                    # useScrollSync
-    workers/                  # diff.worker + client (off-main-thread compares)
+    workers/                  # diff.worker + client (off-main-thread diff + tokens)
+    runCompare.ts             # shared entry: diff + optional syntax tokens
     types.ts                  # domain model
   theme/
     tokens.css                # @theme design tokens (dark) + light overrides in base.css
@@ -84,8 +90,12 @@ tests/
   into per-feature slices won't reach into feature code. Fine-grained selectors keep re-renders
   minimal.
 - **Worker offload with staleness safety.** Compares above a character threshold run in a
-  worker; each request is tagged with a monotonic id so superseded (stale) results are
-  discarded, and the UI reports `idle → computing → ready`.
+  worker (diff **and** syntax tokenization, via the shared `runCompare`); each request is
+  tagged with a monotonic id so superseded (stale) results are discarded, and the UI reports
+  `idle → computing → ready`.
+- **Whole-document tokenization.** Syntax highlighting tokenizes each side as a whole document
+  (so multi-line constructs stay correct), then maps tokens back to per-line spans. It degrades
+  gracefully to plain text when disabled or when a language can't be detected.
 - **Design tokens only.** Components consume CSS-variable-based utilities (e.g. `bg-surface`),
   never raw hex. The light theme is purely token overrides under `html.light`, so no component
   code changes are needed to re-theme.
@@ -105,5 +115,4 @@ tests/
 - Character-level (intra-line) highlighting for modified lines.
 - Unified (inline) diff view in addition to side-by-side.
 - Export/share a diff (URL or file).
-- Syntax-aware highlighting for code inputs.
 - Multi-file / folder comparison.

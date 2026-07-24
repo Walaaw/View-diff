@@ -138,6 +138,37 @@ editor; the file's text populates that editor exactly and can be compared.
 
 ---
 
+### User Story 6 - Syntax highlighting for code (Priority: P4)
+
+When comparing source code, the user can have each line's syntax highlighted (keywords, strings,
+comments, etc.) so code is easier to read inside the diff. Highlighting is a display layer over
+the existing diff and can be toggled off.
+
+**Why this priority**: A readability enhancement for code inputs; the tool is fully functional
+without it, and it must never obscure the diff's change coloring or accessibility signals.
+
+**Independent Test**: Paste code, pick a language (or leave "Auto"), enable syntax highlighting,
+and verify tokens are colored on both sides while added/removed/modified styling and signs remain
+intact; toggling it off restores plain monospace text.
+
+**Acceptance Scenarios**:
+
+1. **Given** code in both editors, **When** syntax highlighting is enabled, **Then** each line's
+   tokens are colored according to the selected language while the diff's row backgrounds and
+   `+ / - / ~` signs remain clearly visible.
+2. **Given** the language selector set to "Auto", **When** a comparison runs, **Then** the
+   language is detected and applied; **When** a specific language is chosen, **Then** that grammar
+   is used instead.
+3. **Given** multi-line constructs (block comments, template strings), **When** highlighting is
+   applied, **Then** tokens are correct across line boundaries (highlighting derives from the
+   whole document, not isolated lines).
+4. **Given** an unsupported/undetected language or highlighting disabled, **When** the diff
+   renders, **Then** content falls back to plain monospace text with no errors.
+5. **Given** either theme, **When** highlighting is on, **Then** token colors meet WCAG AA
+   contrast on default and on changed-row backgrounds.
+
+---
+
 ### Edge Cases
 
 - **Both inputs empty**: Comparing shows an empty/neutral result (or empty state) with zero
@@ -224,6 +255,19 @@ editor; the file's text populates that editor exactly and can be compared.
   indicators, screen-reader support, semantic markup, and sufficient color contrast.
 - **FR-026**: Added/removed/modified/unchanged states MUST be distinguishable by more than
   color alone (e.g., label, icon, or sign).
+
+**Syntax highlighting**
+
+- **FR-027**: The system MUST optionally highlight the syntax of each line's content as a display
+  layer over the diff, toggleable on/off, and MUST NOT alter the underlying diff result.
+- **FR-028**: The system MUST support an "Auto" language mode (detection) and explicit language
+  selection, and MUST derive highlighting from the whole document so multi-line constructs are
+  tokenized correctly.
+- **FR-029**: Highlighting MUST preserve whitespace and the added/removed/modified backgrounds and
+  `+ / - / ~` signs; token colors MUST meet WCAG AA on default and changed-row backgrounds in both
+  themes, and MUST fall back to plain text when a language is unavailable or highlighting is off.
+- **FR-030**: Highlighting MUST NOT block the UI — tokenization of large inputs runs off the main
+  thread (alongside the diff worker).
 
 ### Key Entities *(include if feature involves data)*
 

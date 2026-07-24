@@ -1,10 +1,18 @@
+import { Fragment } from 'react'
 import { cn } from '@/lib/utils'
-import type { ChangeType, DiffCell, DiffRow as DiffRowModel } from '../types'
+import type {
+  ChangeType,
+  DiffCell,
+  DiffRow as DiffRowModel,
+  LineTokens,
+} from '../types'
 
 interface SideCellProps {
   cell: DiffCell
   type: ChangeType
   side: 'left' | 'right'
+  /** Syntax tokens for this line (US6); when absent, plain text is rendered. */
+  tokens?: LineTokens
 }
 
 /** Sign shown for a populated cell — conveys change type without color. */
@@ -22,9 +30,10 @@ function isActiveSide(type: ChangeType, side: 'left' | 'right'): boolean {
   return side === 'left' ? type === 'removed' : type === 'added'
 }
 
-function SideCell({ cell, type, side }: SideCellProps) {
+function SideCell({ cell, type, side, tokens }: SideCellProps) {
   const populated = cell.content !== null
   const active = populated && isActiveSide(type, side)
+  const useTokens = populated && tokens !== undefined && tokens.length > 0
 
   const tone = active
     ? type === 'added'
@@ -51,7 +60,17 @@ function SideCell({ cell, type, side }: SideCellProps) {
         {populated ? signFor(type, side) : ''}
       </span>
       <pre className="overflow-x-auto whitespace-pre px-2 font-mono text-sm leading-6">
-        {cell.content ?? ''}
+        {useTokens
+          ? tokens.map((tok, i) =>
+              tok.className ? (
+                <span key={i} className={tok.className}>
+                  {tok.text}
+                </span>
+              ) : (
+                <Fragment key={i}>{tok.text}</Fragment>
+              ),
+            )
+          : (cell.content ?? '')}
       </pre>
     </div>
   )
@@ -60,14 +79,23 @@ function SideCell({ cell, type, side }: SideCellProps) {
 /**
  * A single aligned row rendering both sides. Whitespace is preserved (`pre`),
  * change type is conveyed by color AND a sign (+/-/~) for accessibility.
+ * Optional per-side syntax tokens add code highlighting (US6).
  */
-export function DiffRow({ row }: { row: DiffRowModel }) {
+export function DiffRow({
+  row,
+  leftTokens,
+  rightTokens,
+}: {
+  row: DiffRowModel
+  leftTokens?: LineTokens
+  rightTokens?: LineTokens
+}) {
   return (
     <div className="diff-row grid grid-cols-2 border-b border-border-default/40">
       <div className="border-r border-border-default">
-        <SideCell cell={row.left} type={row.type} side="left" />
+        <SideCell cell={row.left} type={row.type} side="left" tokens={leftTokens} />
       </div>
-      <SideCell cell={row.right} type={row.type} side="right" />
+      <SideCell cell={row.right} type={row.type} side="right" tokens={rightTokens} />
     </div>
   )
 }

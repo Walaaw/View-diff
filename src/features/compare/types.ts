@@ -79,6 +79,51 @@ export interface LineOp {
 /** Compute status used by the UI for loading feedback. */
 export type DiffStatus = 'idle' | 'computing' | 'ready'
 
+/** One highlighted token within a line (US6). `className` is a highlight.js class. */
+export interface Token {
+  text: string
+  className?: string
+}
+
+/** Highlighted tokens for a single line. */
+export type LineTokens = Token[]
+
+/** Per-side syntax tokens, indexed by (lineNumber - 1). */
+export interface SyntaxResult {
+  original: LineTokens[]
+  modified: LineTokens[]
+}
+
+/** Language choice for syntax highlighting ('auto' = detect). */
+export type Language = string
+
+/** Default language mode. */
+export const DEFAULT_LANGUAGE: Language = 'auto'
+
+/** Selectable languages for the highlighting selector (value → label). */
+export const LANGUAGE_OPTIONS: ReadonlyArray<{ value: Language; label: string }> = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'plaintext', label: 'Plain text' },
+  { value: 'javascript', label: 'JavaScript' },
+  { value: 'typescript', label: 'TypeScript' },
+  { value: 'json', label: 'JSON' },
+  { value: 'xml', label: 'HTML / XML' },
+  { value: 'css', label: 'CSS' },
+  { value: 'python', label: 'Python' },
+  { value: 'java', label: 'Java' },
+  { value: 'go', label: 'Go' },
+  { value: 'rust', label: 'Rust' },
+  { value: 'c', label: 'C' },
+  { value: 'cpp', label: 'C++' },
+  { value: 'csharp', label: 'C#' },
+  { value: 'php', label: 'PHP' },
+  { value: 'ruby', label: 'Ruby' },
+  { value: 'bash', label: 'Shell' },
+  { value: 'sql', label: 'SQL' },
+  { value: 'yaml', label: 'YAML' },
+  { value: 'markdown', label: 'Markdown' },
+]
+
 /** Default number of context lines around a change. */
 export const DEFAULT_CONTEXT_LINES = 3
 

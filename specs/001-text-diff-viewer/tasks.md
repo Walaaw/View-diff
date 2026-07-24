@@ -213,6 +213,39 @@ unchanged.
 
 ---
 
+## Phase 8: User Story 6 - Syntax highlighting for code (Priority: P4)
+
+**Goal**: Optional, toggleable syntax highlighting as a display layer over the diff, with an
+"Auto" language mode plus explicit language selection, correct multi-line tokenization, WCAG-AA
+token colors in both themes, and off-main-thread tokenization for large inputs.
+
+**Independent Test**: Paste code, pick a language (or "Auto"), enable highlighting → tokens are
+colored on both sides while change backgrounds and `+ / - / ~` signs stay intact; toggling off
+restores plain monospace text; unsupported/undetected languages fall back cleanly.
+
+**Decisions (defaults)**: highlight.js via `lowlight` (AST tokens + auto-detect); explicit
+language dropdown with an "Auto" default in `DiffControls`; whole-document tokenization mapped to
+per-line spans; syntax token colors defined as design tokens (dark) with light overrides.
+
+### Tests for User Story 6 ⚠️
+
+- [x] T065 [P] [US6] Unit test for `tokenizeToLines` (whole-doc highlight → per-line token arrays; multi-line constructs; unknown/undetected language falls back to a single plain token) in `tests/unit/highlight/tokenizeToLines.test.ts`
+- [x] T066 [P] [US6] Component test for syntax highlighting in `tests/components/SyntaxHighlight.test.tsx` (spans rendered when enabled; toggle off → plain text; change signs/backgrounds preserved)
+
+### Implementation for User Story 6
+
+- [x] T067 [US6] Add `lowlight` (+ `highlight.js`) dependency and a curated common-language set in `package.json`
+- [x] T068 [US6] Implement `tokenizeToLines` (highlight whole text with the chosen/auto grammar, flatten the AST, split by newline into per-line `{ text, className }[]`, plain-text fallback) in `src/features/compare/highlight/tokenizeToLines.ts`
+- [x] T069 [US6] Define syntax token colors as design tokens (dark) + light overrides in `src/theme/base.css`, tuned for AA on default and changed-row backgrounds
+- [x] T070 [US6] Extend the diff worker + client to compute per-line tokens alongside the diff (via shared `runCompare`) in `src/features/compare/workers/*` + `src/features/compare/runCompare.ts`
+- [x] T071 [US6] Add syntax state to the store: `syntaxEnabled` (default on) + `language` ('auto' + explicit), recompute on change, in `src/store/index.ts`
+- [x] T072 [US6] Render tokens as spans (preserving whitespace + change signs; fallback to plain text when disabled/unavailable) in `src/features/compare/components/DiffRow.tsx`
+- [x] T073 [US6] Add a language selector + syntax on/off toggle to `src/features/compare/components/DiffControls.tsx`
+
+**Checkpoint**: Code diffs are syntax-highlighted without affecting the diff result or accessibility.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -231,6 +264,8 @@ unchanged.
 - US2: after Phase 2; T033 edits the same `EditorToolbar.tsx` created in T025 → run after US1's T025.
 - US3: after US1 (needs `computeDiffResult`, `DiffViewer`).
 - US4: after US1 (needs `useDiff`); EmptyState only needs the layout shell.
+- US5: after US1 (populates the editors via file input); no engine changes.
+- US6: after US1 + US4 (renders over `DiffRow`; reuses the worker for tokenization). Independent of US5.
 
 ### Within Each User Story
 
@@ -285,4 +320,4 @@ does not break previous stories.
 - Consume design tokens only — no raw hex — per constitution Principle III.
 - Commit after each task or logical group; stop at any checkpoint to validate a story independently.
 
-**Total tasks**: 64 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · US5: 6 (T058–T063) · Setup: 8 · Foundational: 5 · Polish: 7 (T052–T057, T064)
+**Total tasks**: 73 | US1: 17 (T014–T030) · US2: 6 (T031–T036) · US3: 8 (T037–T044) · US4: 7 (T045–T051) · US5: 6 (T058–T063) · US6: 9 (T065–T073) · Setup: 8 · Foundational: 5 · Polish: 7 (T052–T057, T064)
